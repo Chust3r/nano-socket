@@ -18,6 +18,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
+    "nanoevents": "^9.1.0",
     "ws": "^8.18.0"
   }
 }
