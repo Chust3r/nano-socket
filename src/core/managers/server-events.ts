@@ -1,17 +1,17 @@
+import { EventEmitter } from '~core/event-emitter'
 import type { ServerEventMap } from '~types'
-import { createNanoEvents } from 'nanoevents'
 
-export class ServerEvents {
-	private emitter = createNanoEvents<ServerEventMap>()
+export class ServerEventsManager {
+	private manager = new EventEmitter()
+
+	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]) {
+		this.manager.on(event, cb)
+	}
 
 	emit<K extends keyof ServerEventMap>(
 		event: K,
 		...args: Parameters<ServerEventMap[K]>
 	) {
-		this.emitter.emit(event, ...args)
-	}
-
-	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
-		this.emitter.on(event, cb)
+		this.manager.emit(event, ...args)
 	}
 }

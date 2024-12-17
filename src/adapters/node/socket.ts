@@ -1,9 +1,9 @@
 import { CommonSendData, CommonWebSocket, WebSocketReadyState } from '~types'
 import type { WebSocket } from 'ws'
-import { CommonEventEmmiter } from '~core/event-emitter'
+import { BaseClientEmitter } from '~core/base-client-emitter'
 
 export class NodeClientAdapter
-	extends CommonEventEmmiter
+	extends BaseClientEmitter
 	implements CommonWebSocket
 {
 	private ws: WebSocket

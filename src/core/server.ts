@@ -1,6 +1,6 @@
-import { ServerEvents } from '~managers/server-events'
+import { ServerEventsManager } from '~managers/server-events'
 
-export class Server extends ServerEvents {
+export class Server extends ServerEventsManager {
 	constructor() {
 		super()
 	}

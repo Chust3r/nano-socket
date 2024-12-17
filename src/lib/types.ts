@@ -30,15 +30,19 @@ export interface CommonWebSocket {
 	send(data: CommonSendData): void
 	close(code?: number, reason?: any): void
 	terminate(): void
-	on<K extends keyof CommonEventMap>(event: K, cb: CommonEventMap[K]): void
 }
 
 export interface ServerEventMap {
-	connection(socket: CommonWebSocket): void
-	disconnect(): void
-	error(err: ExtendedError): void
+	connection(socket: CommonWebSocket): void | Promise<void>
+	disconnect(): void | Promise<void>
+	error(err: ExtendedError): void | Promise<void>
 }
 
 export interface NanoSocketServer {
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
+}
+
+export interface NanoSocketEventMap {
+	disconnect: (code: number, reason: string) => void
+	error: (err: ExtendedError) => void
 }
