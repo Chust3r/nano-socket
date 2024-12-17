@@ -3,6 +3,7 @@ import { WebSocketServer } from 'ws'
 import { CommonWebSocket } from '~lib/types'
 import { NodeClientAdapter } from './socket'
 import { Server } from '~core/server'
+import { SocketClient } from '~core/client'
 
 export class NanoSocket extends Server {
 	private server: WebSocketServer
@@ -16,10 +17,8 @@ export class NanoSocket extends Server {
 		})
 	}
 
-	private handleConnection(
-		socket: CommonWebSocket,
-		req: IncomingMessage
-	): void {
+	private handleConnection(ws: CommonWebSocket, req: IncomingMessage): void {
+		const socket = new SocketClient(ws)
 		this.emit('connection', socket)
 	}
 }

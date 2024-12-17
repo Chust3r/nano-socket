@@ -33,26 +33,26 @@ export interface CommonWebSocket {
 }
 
 export interface ServerEventMap {
-	connection(socket: CommonWebSocket): void | Promise<void>
+	connection(socket: Socket): void | Promise<void>
 	disconnect(): void | Promise<void>
 	error(err: ExtendedError): void | Promise<void>
 }
 
-export interface NanoSocketServer {
+export interface IServer {
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
 }
 
-export interface NanoSocketEventMap {
+export interface SocketEventMap {
 	disconnect: (code: number, reason: string) => void
 	error: (err: ExtendedError) => void
 }
 
-export interface ClientNanoSocket {
+export interface Socket {
 	readonly id: string
 	send(data: any): void
-	on<K extends keyof NanoSocketEventMap>(
+	on<K extends keyof SocketEventMap>(
 		event: K,
-		callback: NanoSocketEventMap[K]
+		callback: SocketEventMap[K]
 	): void
 	on(event: string, callback: (...args: any[]) => void): void
 	emit(event: string, ...args: any[]): void

@@ -1,12 +1,12 @@
-import { ClientNanoSocket, CommonWebSocket, NanoSocketEventMap } from '~types'
+import { Socket, CommonWebSocket, SocketEventMap } from '~types'
 import { nanoid } from 'nanoid'
 
-export class NanoSocketSocket implements ClientNanoSocket {
+export class SocketClient implements Socket {
 	private _id: string
 	private ws: CommonWebSocket
 
 	constructor(ws: CommonWebSocket) {
-		this._id = nanoid()
+		this._id = nanoid(36)
 		this.ws = ws
 	}
 
@@ -14,10 +14,10 @@ export class NanoSocketSocket implements ClientNanoSocket {
 		return this._id
 	}
 
-	on<K extends keyof NanoSocketEventMap | string>(
+	on<K extends keyof SocketEventMap | string>(
 		event: K,
-		callback: K extends keyof NanoSocketEventMap
-			? NanoSocketEventMap[K]
+		callback: K extends keyof SocketEventMap
+			? SocketEventMap[K]
 			: (...args: any[]) => void | Promise<void>
 	): void {}
 
