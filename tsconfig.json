@@ -13,10 +13,10 @@
 		"sourceMap": true,
 		"baseUrl": "./src",
 		"paths": {
-			"@core/*": ["/core/*"],
-			"@managers/*": ["/core/managers/*"],
-			"@lib/*": ["/lib/*"],
-			"@types": ["/lib/types.ts"]
+			"~core/*": ["core/*"],
+			"~managers/*": ["core/managers/*"],
+			"~lib/*": ["lib/*"],
+			"~types": ["lib/types.ts"]
 		}
 	},
 	"include": ["src/**/*"],
