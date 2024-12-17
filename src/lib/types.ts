@@ -46,3 +46,14 @@ export interface NanoSocketEventMap {
 	disconnect: (code: number, reason: string) => void
 	error: (err: ExtendedError) => void
 }
+
+export interface ClientNanoSocket {
+	readonly id: string
+	send(data: any): void
+	on<K extends keyof NanoSocketEventMap>(
+		event: K,
+		callback: NanoSocketEventMap[K]
+	): void
+	on(event: string, callback: (...args: any[]) => void): void
+	emit(event: string, ...args: any[]): void
+}

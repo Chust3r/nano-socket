@@ -1,7 +1,7 @@
 import { CommonEventMap } from '~types'
 import { EventEmitter } from './event-emitter'
 
-export class BaseClientEmitter {
+export class CommonClientEmitter {
 	private emitter = new EventEmitter()
 
 	on<K extends keyof CommonEventMap>(event: K, cb: CommonEventMap[K]) {
