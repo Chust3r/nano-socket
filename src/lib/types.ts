@@ -32,3 +32,13 @@ export interface CommonWebSocket {
 	terminate(): void
 	on<K extends keyof CommonEventMap>(event: K, cb: CommonEventMap[K]): void
 }
+
+export interface ServerEventMap {
+	connection(socket: CommonWebSocket): void
+	disconnect(): void
+	error(err: ExtendedError): void
+}
+
+export interface NanoSocketServer {
+	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
+}
