@@ -14,7 +14,7 @@ export enum WebSocketReadyState {
 }
 
 export type CommonSendData = any
-export type CommonRecivedData = string | Buffer | RawData
+export type CommonRecivedData = string | Buffer<ArrayBufferLike> | RawData
 
 export interface CommonEventMap {
 	close(code?: number, reason?: any): void
