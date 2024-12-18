@@ -30,6 +30,7 @@ export interface CommonWebSocket {
 	send(data: CommonSendData): void
 	close(code?: number, reason?: any): void
 	terminate(): void
+	on<K extends keyof CommonEventMap>(event: K, cb: CommonEventMap[K]): void
 }
 
 export interface ServerEventMap {

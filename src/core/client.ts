@@ -1,13 +1,28 @@
-import { Socket, CommonWebSocket, SocketEventMap } from '~types'
+import {
+	Socket,
+	CommonWebSocket,
+	SocketEventMap,
+	CommonRecivedData,
+} from '~types'
 import { nanoid } from 'nanoid'
+import { Parser } from './parser'
+
+interface SocketClientProps {
+	ws: CommonWebSocket
+	parser: Parser
+}
 
 export class SocketClient implements Socket {
 	private _id: string
 	private ws: CommonWebSocket
+	private parser: Parser
 
-	constructor(ws: CommonWebSocket) {
+	constructor({ ws, parser }: SocketClientProps) {
 		this._id = nanoid(36)
 		this.ws = ws
+		this.parser = parser
+
+		this.ws.on('message', this.handleMessage)
 	}
 
 	get id(): string {
@@ -26,4 +41,8 @@ export class SocketClient implements Socket {
 	}
 
 	emit(event: string, ...args: any[]): void {}
+
+	private handleMessage = (data: CommonRecivedData, isBinary?: boolean) => {
+		const { event, args } = this.parser.deserialize(data)
+	}
 }

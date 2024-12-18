@@ -20,14 +20,14 @@ export class Parser {
 		return { event, args }
 	}
 
-	serialize(data: { event: string; args: any[] }) {
-		if (typeof data.event !== 'string' || !Array.isArray(data.args)) {
+	serialize(event: string, ...args: any[]) {
+		if (typeof event !== 'string' || !Array.isArray(args)) {
 			throw new Error(
 				'Invalid message format: Event should be a string and args should be an array'
 			)
 		}
 
-		return JSON.stringify([data.event, ...data.args])
+		return JSON.stringify([event, ...args])
 	}
 
 	private toJSON(data: string): any {

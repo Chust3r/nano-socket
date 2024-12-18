@@ -18,7 +18,11 @@ export class NanoSocket extends Server {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: IncomingMessage): void {
-		const socket = new SocketClient(ws)
+		const socket = new SocketClient({
+			ws,
+			parser: this.parser,
+		})
+
 		this.emit('connection', socket)
 	}
 }
