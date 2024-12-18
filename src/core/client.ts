@@ -59,12 +59,9 @@ export class SocketClient implements Socket {
 		this.eventManager.on('*', cb)
 	}
 
-	send(data: any): void {
-		this.ws.send(data)
-	}
-
 	emit(event: string, ...args: any[]): void {
-		//→ TODO: IMPLEMENT EMIT
+		const data = this.parser.serialize(event, ...args)
+		this.ws.send(data)
 	}
 
 	private handleMessage = (

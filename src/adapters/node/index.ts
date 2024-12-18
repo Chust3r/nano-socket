@@ -21,10 +21,10 @@ export class NanoSocket extends Server {
 		const socket = new SocketClient({
 			ws,
 			parser: this.parser,
-			clients: this.clients,
+			clients: this.clientManager,
 		})
 
-		this.clients.add(socket)
+		this.clientManager.add(socket)
 		this.emit('connection', socket)
 	}
 }
