@@ -14,7 +14,7 @@ export class RoomManager {
 		this.members.get(id)?.add(room)
 	}
 
-	remove(room: string, id: string): void {
+	private _remove(room: string, id: string): void {
 		const roomClients = this.rooms.get(room)
 		if (roomClients) {
 			roomClients.delete(id)
@@ -75,7 +75,7 @@ export class RoomManager {
 	}
 
 	moveClientToRoom(id: string, from: string, to: string) {
-		this.remove(from, id)
+		this._remove(from, id)
 		this.add(to, id)
 	}
 
@@ -96,5 +96,24 @@ export class RoomManager {
 
 	getMemberRooms(id: string): string[] {
 		return Array.from(this.members.get(id) ?? [])
+	}
+
+	remove(id: string, ...targetRooms: string[]): void {
+		if (targetRooms.length === 0) {
+			const memberRooms = this.members.get(id)
+			if (memberRooms) {
+				memberRooms.forEach((room) => this._remove(room, id))
+				this.members.delete(id)
+			}
+		} else {
+			targetRooms.forEach((room) => {
+				this._remove(room, id)
+			})
+
+			const memberRooms = this.members.get(id)
+			if (memberRooms && memberRooms.size === 0) {
+				this.members.delete(id)
+			}
+		}
 	}
 }

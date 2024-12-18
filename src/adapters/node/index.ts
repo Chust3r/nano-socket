@@ -22,6 +22,7 @@ export class NanoSocket extends Server {
 			ws,
 			parser: this.parser,
 			clients: this.clientManager,
+			roomManager: this.roomManager,
 		})
 
 		this.clientManager.add(socket)

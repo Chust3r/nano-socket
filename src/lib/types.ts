@@ -50,6 +50,7 @@ export interface SocketEventMap {
 
 export interface Socket {
 	readonly id: string
+	readonly rooms: string[]
 	on<K extends keyof SocketEventMap>(
 		event: K,
 		callback: SocketEventMap[K]
@@ -62,5 +63,9 @@ export interface Socket {
 	once(event: string, callback: (...args: any[]) => void): void
 	emit(event: string, ...args: any[]): void
 	onAny(cb: (event: string, ...args: any[]) => void): void
+	join(...rooms: string[]): void
+	leave(...rooms: string[]): void
 	close(): void
+	terminate(): void
+	in(...rooms: string[]): boolean
 }
