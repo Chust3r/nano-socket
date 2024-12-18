@@ -56,5 +56,11 @@ export interface Socket {
 		callback: SocketEventMap[K]
 	): void
 	on(event: string, callback: (...args: any[]) => void): void
+	once<K extends keyof SocketEventMap>(
+		event: K,
+		callback: SocketEventMap[K]
+	): void
+	once(event: string, callback: (...args: any[]) => void): void
 	emit(event: string, ...args: any[]): void
+	onAny(cb: (event: string, ...args: any[]) => void): void
 }
