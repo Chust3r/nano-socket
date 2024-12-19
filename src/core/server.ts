@@ -5,7 +5,7 @@ import { RoomManager } from '~managers/rooms'
 import { MiddlewareManager } from '~managers/middlewares'
 import { Middleware, ServerEventMap } from '~lib/types'
 
-export class Server {
+export class CommonServer {
 	protected parser: Parser
 	protected roomManager: RoomManager
 	protected eventManager: ServerEventsManager
