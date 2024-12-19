@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
-import { CommonWebSocket } from '~lib/types'
+import { CommonWebSocket, ServerEventMap } from '~lib/types'
 import { NodeClientAdapter } from './socket'
 import { Server } from '~core/server'
 import { SocketClient } from '~core/client'
@@ -26,6 +26,10 @@ export class NanoSocket extends Server {
 		})
 
 		this.clientManager.add(socket)
-		this.emit('connection', socket)
+		this.eventManager.emit('connection', socket)
+	}
+
+	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
+		this.eventManager.on(event, cb)
 	}
 }
