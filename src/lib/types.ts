@@ -71,6 +71,7 @@ export interface Socket {
 	in(...rooms: string[]): boolean
 	broadcast: SocketFluent
 	to(...rooms: string[]): SocketFluent
+	data: Map<string, any>
 }
 
 export interface SocketFluent {

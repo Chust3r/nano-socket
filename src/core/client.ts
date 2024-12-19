@@ -30,6 +30,7 @@ export class SocketClient implements Socket {
 	private targetRooms = new Set<string>()
 	private fluent: SocketFluent
 	private isBroadcast: boolean = false
+	public data = new Map<string, any>()
 
 	constructor({ ws, parser, clients, roomManager }: SocketClientProps) {
 		this._id = nanoid()
@@ -87,6 +88,11 @@ export class SocketClient implements Socket {
 
 	get rooms(): string[] {
 		return this.roomManager.getMemberRooms(this._id)
+	}
+
+	get broadcast() {
+		this.isBroadcast = true
+		return this.fluent
 	}
 
 	on<K extends keyof SocketEventMap | string>(
@@ -152,11 +158,6 @@ export class SocketClient implements Socket {
 
 	leave(...rooms: string[]): void {
 		this.roomManager.remove(this._id, ...rooms)
-	}
-
-	get broadcast() {
-		this.isBroadcast = true
-		return this.fluent
 	}
 
 	to(...rooms: string[]) {
