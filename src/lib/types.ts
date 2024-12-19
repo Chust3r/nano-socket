@@ -51,6 +51,7 @@ export interface SocketEventMap {
 export interface Socket {
 	readonly id: string
 	readonly rooms: string[]
+	send(data: CommonSendData): void
 	on<K extends keyof SocketEventMap>(
 		event: K,
 		callback: SocketEventMap[K]
@@ -68,4 +69,11 @@ export interface Socket {
 	close(): void
 	terminate(): void
 	in(...rooms: string[]): boolean
+	broadcast: SocketFluent
+	to(...rooms: string[]): SocketFluent
+}
+
+export interface SocketFluent {
+	to(...rooms: string[]): this
+	emit(event: string, ...args: any[]): void
 }

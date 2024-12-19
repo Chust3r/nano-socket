@@ -23,14 +23,37 @@ export class ClientsConnectedManager {
 		return Array.from(this.clients.values())
 	}
 
-	getClientsExcluding(...ids: string[]): Socket[] {
-		const excludedSet = new Set(ids)
+	getTotalClients(): number {
+		return this.clients.size
+	}
+
+	getClientsExcluding(...excludedIds: string[]): Socket[] {
+		const excludedSet = new Set(excludedIds)
 		return Array.from(this.clients.values()).filter(
 			(client) => !excludedSet.has(client.id)
 		)
 	}
 
-	getTotalClients(): number {
-		return this.clients.size
+	broadcast(message: any): void {
+		this.clients.forEach((client) => {
+			client.send(message)
+		})
+	}
+
+	broadcastExcluding(message: any, ...excludedIds: string[]): void {
+		const excludedSet = new Set(excludedIds)
+
+		this.clients.forEach((client) => {
+			if (!excludedSet.has(client.id)) {
+				client.send(message)
+			}
+		})
+	}
+
+	sendToSpecificClients(message: any, ...ids: string[]): void {
+		ids.forEach((id) => {
+			const client = this.clients.get(id)
+			client?.send(message)
+		})
 	}
 }

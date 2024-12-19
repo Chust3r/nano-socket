@@ -48,7 +48,7 @@ export class RoomManager {
 		return this.rooms.get(room)?.size ?? 0
 	}
 
-	getRoomsClients(...rooms: string[]): string[] {
+	getRoomsMembers(...rooms: string[]): string[] {
 		const clientIdsSet = new Set<string>()
 
 		rooms.forEach((room) => {

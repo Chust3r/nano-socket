@@ -3,12 +3,15 @@ import {
 	CommonWebSocket,
 	SocketEventMap,
 	CommonRecivedData,
+	SocketFluent,
+	CommonSendData,
 } from '~types'
 import { nanoid } from 'nanoid'
 import { Parser } from '~core/parser'
 import { ClientEventsManager } from '~managers/client-events'
 import { ClientsConnectedManager } from '~managers/clients-connected'
 import { RoomManager } from '~core/managers/rooms'
+import { SocketClientFluent } from './client-fluent'
 
 interface SocketClientProps {
 	ws: CommonWebSocket
@@ -21,17 +24,20 @@ export class SocketClient implements Socket {
 	private _id: string
 	private ws: CommonWebSocket
 	private parser: Parser
-	private eventManager: ClientEventsManager
 	private clients: ClientsConnectedManager
 	private roomManager: RoomManager
+	private eventManager = new ClientEventsManager()
+	private targetRooms = new Set<string>()
+	private fluent: SocketFluent
+	private isBroadcast: boolean = false
 
 	constructor({ ws, parser, clients, roomManager }: SocketClientProps) {
-		this._id = nanoid(36)
+		this._id = nanoid()
 		this.ws = ws
 		this.parser = parser
 		this.clients = clients
 		this.roomManager = roomManager
-		this.eventManager = new ClientEventsManager()
+		this.fluent = new SocketClientFluent(this)
 
 		this.ws.on('message', this.handleMessage)
 		this.ws.on('close', this.handleClose)
@@ -51,6 +57,30 @@ export class SocketClient implements Socket {
 		this.eventManager.emit('disconnect', 1000, 'Socket Closed')
 	}
 
+	private clear(): void {
+		this.targetRooms.clear()
+		this.isBroadcast = false
+	}
+
+	private getClientsForEmit(): string[] {
+		let clients: string[] = []
+		const rooms = Array.from(this.targetRooms)
+
+		if (this.isBroadcast && this.targetRooms.size > 0) {
+			clients = this.roomManager
+				.getRoomsMembers(...rooms)
+				.filter((clientId) => clientId !== this.id)
+		} else if (!this.isBroadcast && this.targetRooms.size > 0) {
+			clients = this.roomManager.getRoomsMembers(...rooms)
+		} else if (this.isBroadcast) {
+			clients = this.clients
+				.getClientsExcluding(this.id)
+				.map((client) => client.id)
+		}
+
+		return clients
+	}
+
 	get id(): string {
 		return this._id
 	}
@@ -68,6 +98,10 @@ export class SocketClient implements Socket {
 		this.eventManager.on(event, cb)
 	}
 
+	send(data: CommonSendData): void {
+		this.ws.send(data)
+	}
+
 	once<K extends keyof SocketEventMap | string>(
 		event: K,
 		cb: K extends keyof SocketEventMap
@@ -83,7 +117,17 @@ export class SocketClient implements Socket {
 
 	emit(event: string, ...args: any[]): void {
 		const data = this.parser.serialize(event, ...args)
-		this.ws.send(data)
+		const clients = this.getClientsForEmit()
+
+		if (clients.length > 0) {
+			this.clients.sendToSpecificClients(data, ...clients)
+			this.clear()
+			return
+		}
+
+		if (!this.isBroadcast) {
+			this.send(data)
+		}
 	}
 
 	close(): void {
@@ -92,6 +136,10 @@ export class SocketClient implements Socket {
 
 	terminate(): void {
 		this.ws.terminate()
+	}
+
+	setTargetRooms(...rooms: string[]) {
+		this.targetRooms = new Set([...this.targetRooms, ...rooms])
 	}
 
 	in(...rooms: string[]): boolean {
@@ -104,5 +152,20 @@ export class SocketClient implements Socket {
 
 	leave(...rooms: string[]): void {
 		this.roomManager.remove(this._id, ...rooms)
+	}
+
+	get broadcast() {
+		this.isBroadcast = true
+		return this.fluent
+	}
+
+	to(...rooms: string[]) {
+		rooms.forEach((room) => {
+			if (!this.in(room)) {
+				this.join(room)
+			}
+		})
+		this.setTargetRooms(...rooms)
+		return this.fluent
 	}
 }
