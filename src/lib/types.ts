@@ -1,6 +1,6 @@
 import type { RawData } from 'ws'
 
-interface ExtendedError extends Error {
+export interface ExtendedError extends Error {
 	code?: number
 	timestamp?: string
 	context?: string
@@ -77,3 +77,8 @@ export interface SocketFluent {
 	to(...rooms: string[]): this
 	emit(event: string, ...args: any[]): void
 }
+
+export type Middleware = (
+	socket: Socket,
+	next: (err?: ExtendedError) => void
+) => void | Promise<void>

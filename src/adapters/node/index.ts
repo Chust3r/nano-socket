@@ -25,11 +25,13 @@ export class NanoSocket extends Server {
 			roomManager: this.roomManager,
 		})
 
-		this.clientManager.add(socket)
-		this.eventManager.emit('connection', socket)
-	}
-
-	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
-		this.eventManager.on(event, cb)
+		this.middlewareManager.run(socket, (err) => {
+			if (err) {
+				socket.terminate()
+				return
+			}
+			this.clientManager.add(socket)
+			this.eventManager.emit('connection', socket)
+		})
 	}
 }
