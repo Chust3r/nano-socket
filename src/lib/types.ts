@@ -24,9 +24,6 @@ export interface CommonEventMap {
 
 export interface CommonWebSocket {
 	readonly readyState: WebSocketReadyState
-	readonly url: string
-	readonly protocol: string
-	readonly bufferedAmount: number
 	send(data: CommonSendData): void
 	close(code?: number, reason?: any): void
 	terminate(): void
@@ -76,6 +73,7 @@ export interface Socket {
 	broadcast: SocketFluent
 	to(...rooms: string[]): SocketFluent
 	data: Map<string, any>
+	request: SocketRequest
 }
 
 export interface SocketFluent {
@@ -92,4 +90,20 @@ export interface ServerFluent {
 	exclude(...ids: string[]): this
 	to(...rooms: string[]): this
 	emit(event: string, ...args: any[]): void
+}
+
+export interface AddressInfo {
+	address: string
+	family: string
+	port: number
+}
+
+export interface SocketRequest {
+	headers: Headers
+	url: string
+	query: Map<string, string>
+	path: string
+	auth?: Record<string, string>
+	cookies: Map<string, string>
+	address: AddressInfo | null
 }

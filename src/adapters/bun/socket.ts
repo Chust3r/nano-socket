@@ -18,18 +18,6 @@ export class BunClientAdapter
 		this.ws = ws
 	}
 
-	get bufferedAmount(): number {
-		return 1
-	}
-
-	get protocol(): string {
-		return ''
-	}
-
-	get url(): string {
-		return ''
-	}
-
 	get readyState(): WebSocketReadyState {
 		return this.ws.readyState
 	}

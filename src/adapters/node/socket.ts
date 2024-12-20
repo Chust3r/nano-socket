@@ -18,18 +18,6 @@ export class NodeClientAdapter
 		this.ws.on('error', (err) => this.emit('error', err))
 	}
 
-	get bufferedAmount(): number {
-		return this.ws.bufferedAmount
-	}
-
-	get protocol(): string {
-		return this.ws.protocol
-	}
-
-	get url(): string {
-		return this.ws.url
-	}
-
 	get readyState(): WebSocketReadyState {
 		return this.ws.readyState
 	}

@@ -4,6 +4,7 @@ import { CommonWebSocket } from '~lib/types'
 import { NodeClientAdapter } from './socket'
 import { CommonServer } from '~core/server'
 import { SocketClient } from '~core/client'
+import { getNodeRequest } from '~lib/request'
 
 export class Server extends CommonServer {
 	private server: WebSocketServer
@@ -23,6 +24,7 @@ export class Server extends CommonServer {
 			parser: this.parser,
 			clients: this.clientManager,
 			roomManager: this.roomManager,
+			request: getNodeRequest(req),
 		})
 
 		this.middlewareManager.run(socket, (err) => {

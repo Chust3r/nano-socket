@@ -5,6 +5,7 @@ import {
 	CommonRecivedData,
 	SocketFluent,
 	CommonSendData,
+	SocketRequest,
 } from '~types'
 import { nanoid } from 'nanoid'
 import { Parser } from '~core/parser'
@@ -18,6 +19,7 @@ interface SocketClientProps {
 	parser: Parser
 	clients: ClientsConnectedManager
 	roomManager: RoomManager
+	request: SocketRequest
 }
 
 export class SocketClient implements Socket {
@@ -31,14 +33,22 @@ export class SocketClient implements Socket {
 	private fluent: SocketFluent
 	private isBroadcast: boolean = false
 	public data = new Map<string, any>()
+	private req: SocketRequest
 
-	constructor({ ws, parser, clients, roomManager }: SocketClientProps) {
+	constructor({
+		ws,
+		parser,
+		clients,
+		roomManager,
+		request,
+	}: SocketClientProps) {
 		this._id = nanoid()
 		this.ws = ws
 		this.parser = parser
 		this.clients = clients
 		this.roomManager = roomManager
 		this.fluent = new SocketClientFluent(this)
+		this.req = request
 
 		this.ws.on('message', this.handleMessage)
 		this.ws.on('close', this.handleClose)
@@ -93,6 +103,10 @@ export class SocketClient implements Socket {
 	get broadcast() {
 		this.isBroadcast = true
 		return this.fluent
+	}
+
+	get request(): SocketRequest {
+		return this.req
 	}
 
 	on<K extends keyof SocketEventMap | string>(
