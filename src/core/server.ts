@@ -50,6 +50,44 @@ export class CommonServer implements IServer {
 		}
 	}
 
+	private getClientPublicData(client: Socket): Socket {
+		return {
+			id: client.id,
+			rooms: client.rooms,
+			data: client.data,
+			on: client.on.bind(client),
+			once: client.once.bind(client),
+			onAny: client.onAny.bind(client),
+			emit: client.emit.bind(client),
+			send: client.send.bind(client),
+			close: client.close.bind(client),
+			terminate: client.terminate.bind(client),
+			in: client.in.bind(client),
+			join: client.join.bind(client),
+			leave: client.leave.bind(client),
+			to: client.to.bind(client),
+			broadcast: client.broadcast,
+		}
+	}
+
+	get clients() {
+		return {
+			clients: this.clientManager
+				.getAllClients()
+				.map(this.getClientPublicData),
+			count: this.clientManager.getTotalClients(),
+			get: (id: string) => {
+				const client = this.clientManager.get(id)
+				return client ? this.getClientPublicData(client) : undefined
+			},
+			has: (id: string) => this.clientManager.has(id),
+			getExcluding: (...excludedIds: string[]) =>
+				this.clientManager
+					.getClientsExcluding(...excludedIds)
+					.map(this.getClientPublicData),
+		}
+	}
+
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
 		this.eventManager.on(event, cb)
 	}
