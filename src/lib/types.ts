@@ -101,9 +101,9 @@ export interface AddressInfo {
 export interface SocketRequest {
 	headers: Headers
 	url: string
-	query: Map<string, string>
+	query: ReadonlyMap<string, string>
 	path: string
-	auth?: Record<string, string>
-	cookies: Map<string, string>
+	auth: ReadonlyMap<string, string>
+	cookies: ReadonlyMap<string, string>
 	address: AddressInfo | null
 }

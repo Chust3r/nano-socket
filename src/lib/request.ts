@@ -2,7 +2,7 @@ import { AddressInfo, SocketRequest } from '~types'
 import { Server } from 'bun'
 import { IncomingMessage } from 'http'
 
-const getQueryParams = (path: string): Map<string, string> => {
+const getQueryParams = (path: string): ReadonlyMap<string, string> => {
 	const urlObj = new URL(path, 'https://example.com')
 	const params = new URLSearchParams(urlObj.search)
 	const result = new Map<string, string>()
@@ -11,7 +11,7 @@ const getQueryParams = (path: string): Map<string, string> => {
 		result.set(key, value)
 	}
 
-	return result
+	return Object.freeze(result)
 }
 
 const getPath = (url: string): string => {
@@ -19,17 +19,25 @@ const getPath = (url: string): string => {
 	return urlObj.pathname
 }
 
-const getAuth = (authHeader: string): Record<string, string> => {
-	if (!authHeader) return {}
+const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
+	let auth = new Map<string, string>()
+
+	if (!authHeader) return Object.freeze(auth)
 
 	try {
-		return JSON.parse(authHeader)
+		const parsedAuth = JSON.parse(authHeader)
+
+		Object.entries(parsedAuth).forEach(([key, value]) => {
+			auth.set(key, String(value))
+		})
 	} catch {
-		return { token: authHeader }
+		auth.set('token', authHeader)
 	}
+
+	return Object.freeze(auth)
 }
 
-const getCookies = (cookieHeader: string): Map<string, string> => {
+const getCookies = (cookieHeader: string): ReadonlyMap<string, string> => {
 	const cookies = new Map<string, string>()
 	if (cookieHeader) {
 		cookieHeader.split(';').forEach((cookie) => {
@@ -39,7 +47,7 @@ const getCookies = (cookieHeader: string): Map<string, string> => {
 			}
 		})
 	}
-	return cookies
+	return Object.freeze(cookies)
 }
 
 const getFullUrl = (req: IncomingMessage): string => {
@@ -55,8 +63,6 @@ export const getNodeRequest = (req: IncomingMessage): SocketRequest => {
 			headers.append(key, String(value))
 		}
 	}
-
-	console.log('NODE', req.socket.address())
 
 	const url = getFullUrl(req)
 	const query = getQueryParams(url)
