@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
-import { CommonWebSocket, ServerEventMap } from '~lib/types'
+import { CommonWebSocket } from '~lib/types'
 import { NodeClientAdapter } from './socket'
 import { CommonServer } from '~core/server'
 import { SocketClient } from '~core/client'

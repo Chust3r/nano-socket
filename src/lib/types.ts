@@ -41,6 +41,10 @@ export interface ServerEventMap {
 
 export interface IServer {
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
+	emit(event: string, ...args: any[]): void
+	use(middleware: Middleware): void
+	to(...rooms: string[]): ServerFluent
+	exclude(...ids: string[]): ServerFluent
 }
 
 export interface SocketEventMap {
@@ -83,3 +87,9 @@ export type Middleware = (
 	socket: Socket,
 	next: (err?: ExtendedError) => void
 ) => void | Promise<void>
+
+export interface ServerFluent {
+	exclude(...ids: string[]): this
+	to(...rooms: string[]): this
+	emit(event: string, ...args: any[]): void
+}
