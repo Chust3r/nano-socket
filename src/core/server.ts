@@ -3,7 +3,13 @@ import { ClientsConnectedManager } from '~managers/clients-connected'
 import { Parser } from '~core/parser'
 import { RoomManager } from '~managers/rooms'
 import { MiddlewareManager } from '~managers/middlewares'
-import { IServer, Middleware, ServerEventMap, ServerFluent } from '~lib/types'
+import {
+	IServer,
+	Middleware,
+	ServerEventMap,
+	ServerFluent,
+	Socket,
+} from '~lib/types'
 import { ServerFluentI } from '~core/server-fluent'
 
 export class CommonServer implements IServer {
@@ -25,6 +31,23 @@ export class CommonServer implements IServer {
 			clients: this.clientManager,
 			roomManager: this.roomManager,
 		})
+	}
+
+	get rooms() {
+		return {
+			rooms: this.roomManager.getRooms(),
+			merge: (target: string, ...rooms: string[]) =>
+				this.roomManager.merge(target, ...rooms),
+			getMembers: (room: string) => this.roomManager.getRoomMembers(room),
+			move: (member: string, from: string, to: string) =>
+				this.roomManager.moveClientToRoom(member, from, to),
+			delete: (room: string) => this.roomManager.deleteRoom(room),
+			in: (member: string, ...rooms: string[]) =>
+				this.roomManager.in(member, ...rooms),
+			remove: (member: string, ...rooms: string[]) =>
+				this.roomManager.remove(member, ...rooms),
+			getCount: (room: string) => this.roomManager.getRoomMembersCount(room),
+		}
 	}
 
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
