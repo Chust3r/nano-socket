@@ -67,6 +67,7 @@ export class CommonServer implements IServer {
 			leave: client.leave.bind(client),
 			to: client.to.bind(client),
 			broadcast: client.broadcast,
+			request: client.request,
 		}
 	}
 
