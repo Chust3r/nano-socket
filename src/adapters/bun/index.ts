@@ -1,56 +1,98 @@
-import { CommonWebSocket, SocketRequest } from '~types'
+import {
+	CommonRecivedData,
+	CommonWebSocket,
+	ExtendedError,
+	SocketRequest,
+} from '~types'
 import { BunClientAdapter } from './socket'
 import { CommonServer } from '~core/server'
 import { SocketClient } from '~core/client'
 import { getBunRequest } from '~lib/request'
-import { Server as IServe } from 'bun'
+import { Server as BunServer, ServerWebSocket } from 'bun'
+
+export interface ServerOptions {
+	path?: string
+}
 
 type WebSocketData = {
 	adapter: BunClientAdapter
 	req: Request
-	server: IServe
+	server: BunServer
+}
+
+type InternalServerOptions = {
+	port: number
+	path: string
 }
 
 export class Server extends CommonServer {
-	constructor() {
+	private options: Partial<InternalServerOptions> = {}
+
+	constructor(srv: number, opts?: Partial<ServerOptions>)
+	constructor(srv?: Partial<ServerOptions>, opts?: never)
+	constructor(
+		srv?: number | Partial<ServerOptions>,
+		opts?: Partial<ServerOptions>
+	) {
 		super()
 
-		Bun.serve<WebSocketData>({
-			fetch(req, server) {
-				server.upgrade(req, {
-					data: {
-						req,
-						server,
-					},
-				})
+		if (typeof srv === 'number') {
+			this.options = { ...opts, path: opts?.path }
+			this.options.port = srv
 
-				return undefined
-			},
-			websocket: {
-				open: (ws) => {
-					const bunWs = new BunClientAdapter(ws)
-
-					ws.data.adapter = bunWs
-
-					const req = getBunRequest(ws.data.req, ws.data.server)
-
-					this.handleConnection(bunWs, req)
-				},
-				message: (ws, message) => {
-					const bunWs = ws.data.adapter
-					if (bunWs) {
-						bunWs.emit('message', message)
+			Bun.serve<WebSocketData>({
+				fetch: (request: Request, server: BunServer) => {
+					if (request.headers.get('upgrade') === 'websocket') {
+						return this.handleUpgrade(request, server)
 					}
+					return undefined
 				},
-				close: (ws, code, reason) => {
-					const bunWs = ws.data.adapter
-					if (bunWs) {
-						bunWs.emit('close', code, reason)
+				websocket: this.websocket,
+				port: this.options.port ?? 3000,
+			})
+		} else if (srv instanceof Object && !(srv instanceof Array) && !opts) {
+			this.options = srv as ServerOptions
+		} else if (srv instanceof Object && opts) {
+			throw new Error('No se pueden pasar dos objetos de configuración.')
+		} else {
+			Bun.serve<WebSocketData>({
+				fetch: (request: Request, server: BunServer) => {
+					if (request.headers.get('upgrade') === 'websocket') {
+						return this.handleUpgrade(request, server)
 					}
+					return undefined
 				},
-			},
-			port: 8080,
-		})
+				websocket: this.websocket,
+				port: this.options.port,
+			})
+		}
+	}
+
+	private open(ws: ServerWebSocket<WebSocketData>) {
+		const bunWS = new BunClientAdapter(ws)
+		const req = getBunRequest(ws.data.req, ws.data.server)
+		this.handleConnection(bunWS, req)
+	}
+
+	private message(
+		ws: ServerWebSocket<WebSocketData>,
+		message: CommonRecivedData
+	): void {
+		const bunWS = ws.data.adapter
+		if (bunWS) {
+			bunWS.emit('message', message)
+		}
+	}
+
+	private close(
+		ws: ServerWebSocket<WebSocketData>,
+		code: number,
+		reason: string
+	): void {
+		const bunWS = ws.data.adapter
+		if (bunWS) {
+			bunWS.emit('close', code, reason)
+		}
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
@@ -62,13 +104,37 @@ export class Server extends CommonServer {
 			request: req,
 		})
 
-		this.middlewareManager.run(socket, (err) => {
+		this.middlewareManager.run(socket, (err?: ExtendedError) => {
 			if (err) {
 				socket.terminate()
 				return
 			}
 			this.clientManager.add(socket)
 			this.eventManager.emit('connection', socket)
+		})
+	}
+
+	get websocket() {
+		return {
+			open: (ws: ServerWebSocket<WebSocketData>) => this.open(ws),
+			message: (
+				ws: ServerWebSocket<WebSocketData>,
+				message: CommonRecivedData
+			) => this.message(ws, message),
+			close: (
+				ws: ServerWebSocket<WebSocketData>,
+				code: number,
+				reason: string
+			) => this.close(ws, code, reason),
+		}
+	}
+
+	handleUpgrade(request: Request, server: BunServer): void {
+		server.upgrade(request, {
+			data: {
+				req: request,
+				server,
+			} as WebSocketData,
 		})
 	}
 }
