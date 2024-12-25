@@ -50,7 +50,7 @@ export class BunServerServer extends Server {
 		} else if (srv instanceof Object && !(srv instanceof Array) && !opts) {
 			this.options = srv as ServerOptions
 		} else if (srv instanceof Object && opts) {
-			throw new Error('No se pueden pasar dos objetos de configuración.')
+			throw new Error('Invalid Server Options')
 		} else {
 			Bun.serve<WebSocketData>({
 				fetch: (request: Request, server: BunServer) => {

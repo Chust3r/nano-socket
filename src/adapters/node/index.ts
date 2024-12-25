@@ -14,7 +14,7 @@ interface InternalServerOptions {
 	noServer: boolean
 }
 
-class NodeServer extends Server {
+class NodeServerServer extends Server {
 	private server?: WebSocketServer
 	private options: Partial<InternalServerOptions> = {}
 
@@ -35,6 +35,8 @@ class NodeServer extends Server {
 			this.options.noServer = false
 		} else if (!srv && !opts) {
 			this.options.noServer = true
+		} else {
+			throw new Error('Invalid Server Configuration')
 		}
 
 		if (this.options.noServer) {
@@ -96,4 +98,4 @@ class NodeServer extends Server {
 	}
 }
 
-export { NodeServer as Server }
+export { NodeServerServer as Server }
