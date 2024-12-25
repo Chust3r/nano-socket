@@ -1,4 +1,4 @@
-import { Server as HTTPServer } from 'node:https'
+import { Server as HTTPServer } from 'node:http'
 import { Server as HTTPSServer } from 'node:https'
 import { Http2SecureServer, Http2Server } from 'node:http2'
 import type { RawData } from 'ws'

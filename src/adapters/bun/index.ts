@@ -93,7 +93,7 @@ export class BunServerServer extends Server {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
-		const path = req.url?.replace(this.options.path || '', '') || '/'
+		const path = req.path
 		const namespace = this.namespaceManager.getOrCreate(path)
 
 		const socket = new SocketClient({
@@ -130,6 +130,10 @@ export class BunServerServer extends Server {
 	}
 
 	handleUpgrade(request: Request, server: BunServer): void {
+		if (this.options.path && !request.url?.startsWith(this.options.path)) {
+			return
+		}
+
 		server.upgrade(request, {
 			data: {
 				req: request,

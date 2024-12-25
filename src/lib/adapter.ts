@@ -1,4 +1,5 @@
 import { NodeServerCompatible, HTTPSServer, HTTPServer } from '~types'
+import { Server } from 'node:http'
 
 export const adaptToHttpServer = (
 	server: NodeServerCompatible
@@ -8,7 +9,10 @@ export const adaptToHttpServer = (
 	}
 
 	if ('stream' in server) {
-		return server as unknown as HTTPServer
+		return Object.assign(
+			Object.create(Server.prototype),
+			server
+		) as HTTPServer
 	}
 
 	return server
