@@ -17,12 +17,4 @@ export class NamespaceManager {
 		} else {
 		}
 	}
-
-	getAllNamespaces(): Namespace[] {
-		return Array.from(this.namespaces.values())
-	}
-
-	get(name: string): Namespace | undefined {
-		return this.namespaces.get(name)
-	}
 }
