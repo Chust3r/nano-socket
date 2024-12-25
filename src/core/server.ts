@@ -3,10 +3,10 @@ import {
 	Server as CommonServer,
 	Middleware,
 	ServerEventMap,
-	ServerFluent,
-} from '~lib/types'
+	Fluent,
+	Namespace,
+} from '~types'
 import { NamespaceManager } from './managers/namespaces'
-import { Namespace } from './namespace'
 
 export class Server implements CommonServer {
 	protected parser: Parser
@@ -40,11 +40,11 @@ export class Server implements CommonServer {
 		this.currentNamespace.emit(event, ...args)
 	}
 
-	to(...rooms: string[]): ServerFluent {
+	to(...rooms: string[]): Fluent {
 		return this.currentNamespace.to(...rooms)
 	}
 
-	exclude(...ids: string[]): ServerFluent {
+	exclude(...ids: string[]): Fluent {
 		return this.currentNamespace.exclude(...ids)
 	}
 

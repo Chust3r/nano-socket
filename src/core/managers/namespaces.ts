@@ -15,7 +15,6 @@ export class NamespaceManager {
 		if (this.namespaces.has(name)) {
 			this.namespaces.delete(name)
 		} else {
-			console.warn(`Namespace '${name}' no encontrado para eliminar.`)
 		}
 	}
 

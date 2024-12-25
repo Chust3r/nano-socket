@@ -1,4 +1,4 @@
-import { ServerFluent } from '~lib/types'
+import { Fluent } from '~types'
 import { Parser } from '~core/parser'
 import { ClientsConnectedManager } from '~managers/clients-connected'
 import { RoomManager } from '~managers/rooms'
@@ -9,7 +9,7 @@ interface ServerFluentIProps {
 	roomManager: RoomManager
 }
 
-export class ServerFluentI implements ServerFluent {
+export class ServerFluent implements Fluent {
 	private excludeIds: Set<string> = new Set()
 	private excludeRooms: Set<string> = new Set()
 	private targetRooms: Set<string> = new Set()

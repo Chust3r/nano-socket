@@ -43,8 +43,8 @@ export interface Server {
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
 	emit(event: string, ...args: any[]): void
 	use(middleware: Middleware): void
-	to(...rooms: string[]): ServerFluent
-	exclude(...ids: string[]): ServerFluent
+	to(...rooms: string[]): Fluent
+	exclude(...ids: string[]): Fluent
 }
 
 export interface SocketEventMap {
@@ -89,7 +89,7 @@ export type Middleware = (
 	next: (err?: ExtendedError) => void
 ) => void | Promise<void>
 
-export interface ServerFluent {
+export interface Fluent {
 	exclude(...ids: string[]): this
 	to(...rooms: string[]): this
 	emit(event: string, ...args: any[]): void
@@ -109,6 +109,31 @@ export interface SocketRequest {
 	auth: ReadonlyMap<string, string>
 	cookies: ReadonlyMap<string, string>
 	address: AddressInfo | null
+}
+
+export interface Namespace {
+	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
+	use(middleware: Middleware): void
+	emit(event: string, ...args: any[]): void
+	get rooms(): {
+		rooms: string[]
+		merge: (target: string, ...rooms: string[]) => void
+		getMembers: (room: string) => Socket[]
+		move: (member: string, from: string, to: string) => void
+		delete: (room: string) => void
+		in: (member: string, ...rooms: string[]) => void
+		remove: (member: string, ...rooms: string[]) => void
+		getCount: (room: string) => number
+	}
+	get clients(): {
+		clients: Socket[]
+		count: number
+		get: (id: string) => Socket | undefined
+		has: (id: string) => boolean
+		getExcluding: (...excludedIds: string[]) => Socket[]
+	}
+	to(...rooms: string[]): Fluent
+	exclude(...ids: string[]): Fluent
 }
 
 export interface ServerOptions {
