@@ -2,17 +2,14 @@ import {
 	CommonRecivedData,
 	CommonWebSocket,
 	ExtendedError,
+	ServerOptions,
 	SocketRequest,
 } from '~types'
 import { BunClientAdapter } from './socket'
-import { CommonServer } from '~core/server'
+import { Server } from '~core/server'
 import { SocketClient } from '~core/client'
 import { getBunRequest } from '~lib/request'
 import { Server as BunServer, ServerWebSocket } from 'bun'
-
-export interface ServerOptions {
-	path?: string
-}
 
 type WebSocketData = {
 	adapter: BunClientAdapter
@@ -20,12 +17,12 @@ type WebSocketData = {
 	server: BunServer
 }
 
-type InternalServerOptions = {
+interface InternalServerOptions {
 	port: number
 	path: string
 }
 
-export class Server extends CommonServer {
+export class BunServerServer extends Server {
 	private options: Partial<InternalServerOptions> = {}
 
 	constructor(srv: number, opts?: Partial<ServerOptions>)
@@ -96,21 +93,24 @@ export class Server extends CommonServer {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
+		const path = req.url?.replace(this.options.path || '', '') || '/'
+		const namespace = this.namespaceManager.getOrCreate(path)
+
 		const socket = new SocketClient({
 			ws,
 			parser: this.parser,
-			clients: this.clientManager,
-			roomManager: this.roomManager,
+			clients: namespace.clientManager,
+			roomManager: namespace.roomManager,
 			request: req,
 		})
 
-		this.middlewareManager.run(socket, (err?: ExtendedError) => {
+		namespace.middlewareManager.run(socket, (err?: ExtendedError) => {
 			if (err) {
 				socket.terminate()
 				return
 			}
-			this.clientManager.add(socket)
-			this.eventManager.emit('connection', socket)
+			namespace.clientManager.add(socket)
+			namespace.eventManager.emit('connection', socket)
 		})
 	}
 
@@ -138,3 +138,5 @@ export class Server extends CommonServer {
 		})
 	}
 }
+
+export { BunServerServer as Server }

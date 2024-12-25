@@ -1,46 +1,25 @@
-import { IncomingMessage, Server as HTTPServer } from 'node:http'
-import { Server as HTTPSServer } from 'https'
-import { Http2SecureServer, Http2Server } from 'http2'
+import { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
-import { CommonWebSocket } from '~types'
+import { CommonWebSocket, ServerOptions, NodeServerCompatible } from '~types'
 import { NodeClientAdapter } from './socket'
-import { CommonServer } from '~core/server'
+import { Server } from '~core/server'
 import { SocketClient } from '~core/client'
 import { getNodeRequest } from '~lib/request'
+import { adaptToHttpServer } from '~lib/adapter'
 
-export interface ServerOptions {
-	path?: string
+interface InternalServerOptions {
+	port: number
+	path: string
+	server: NodeServerCompatible
+	noServer: boolean
 }
 
-type TServerInstance =
-	| HTTPServer
-	| HTTPSServer
-	| Http2SecureServer
-	| Http2Server
-
-function adaptToHttpServer(server: TServerInstance): HTTPServer | HTTPSServer {
-	if ('setTimeout' in server) {
-		return server as HTTPServer | HTTPSServer
-	}
-
-	if ('stream' in server) {
-		return server as unknown as HTTPServer
-	}
-
-	return server
-}
-
-export class Server extends CommonServer {
+class NodeServer extends Server {
 	private server?: WebSocketServer
-	private options: {
-		port?: number
-		path?: string
-		server?: TServerInstance
-		noServer?: boolean
-	} = {}
+	private options: Partial<InternalServerOptions> = {}
 
 	constructor(
-		srv?: TServerInstance | number | Partial<ServerOptions>,
+		srv?: NodeServerCompatible | number | Partial<ServerOptions>,
 		opts?: Partial<ServerOptions>
 	) {
 		super()
@@ -51,7 +30,7 @@ export class Server extends CommonServer {
 			this.options = srv as Partial<ServerOptions>
 			this.options.noServer = true
 		} else if (srv instanceof Object && opts) {
-			this.options.server = srv as TServerInstance
+			this.options.server = srv as NodeServerCompatible
 			this.options.path = opts.path
 			this.options.noServer = false
 		} else if (!srv && !opts) {
@@ -82,21 +61,24 @@ export class Server extends CommonServer {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: IncomingMessage): void {
+		const path = req.url?.replace(this.options.path || '', '') || '/'
+		const namespace = this.namespaceManager.getOrCreate(path)
+
 		const socket = new SocketClient({
 			ws,
 			parser: this.parser,
-			clients: this.clientManager,
-			roomManager: this.roomManager,
+			clients: namespace.clientManager,
+			roomManager: namespace.roomManager,
 			request: getNodeRequest(req),
 		})
 
-		this.middlewareManager.run(socket, (err) => {
+		namespace.middlewareManager.run(socket, (err) => {
 			if (err) {
 				socket.terminate()
 				return
 			}
-			this.clientManager.add(socket)
-			this.eventManager.emit('connection', socket)
+			namespace.clientManager.add(socket)
+			namespace.eventManager.emit('connection', socket)
 		})
 	}
 
@@ -113,3 +95,5 @@ export class Server extends CommonServer {
 		}
 	}
 }
+
+export { NodeServer as Server }

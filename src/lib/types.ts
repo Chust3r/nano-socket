@@ -1,3 +1,6 @@
+import { Server as HTTPServer } from 'node:https'
+import { Server as HTTPSServer } from 'node:https'
+import { Http2SecureServer, Http2Server } from 'node:http2'
 import type { RawData } from 'ws'
 
 export interface ExtendedError extends Error {
@@ -36,7 +39,7 @@ export interface ServerEventMap {
 	error(err: ExtendedError): void | Promise<void>
 }
 
-export interface IServer {
+export interface Server {
 	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void
 	emit(event: string, ...args: any[]): void
 	use(middleware: Middleware): void
@@ -107,3 +110,15 @@ export interface SocketRequest {
 	cookies: ReadonlyMap<string, string>
 	address: AddressInfo | null
 }
+
+export interface ServerOptions {
+	path?: string
+}
+
+export type NodeServerCompatible =
+	| HTTPServer
+	| HTTPSServer
+	| Http2SecureServer
+	| Http2Server
+
+export { HTTPServer, HTTPSServer }
