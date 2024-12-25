@@ -2,7 +2,7 @@ import { AddressInfo, SocketRequest } from '~types'
 import { Server } from 'bun'
 import { IncomingMessage } from 'http'
 
-const getQueryParams = (path: string): ReadonlyMap<string, string> => {
+export const getQueryParams = (path: string): ReadonlyMap<string, string> => {
 	const urlObj = new URL(path, 'https://example.com')
 	const params = new URLSearchParams(urlObj.search)
 	const result = new Map<string, string>()
@@ -14,12 +14,12 @@ const getQueryParams = (path: string): ReadonlyMap<string, string> => {
 	return Object.freeze(result)
 }
 
-const getPath = (url: string): string => {
+export const getPath = (url: string): string => {
 	const urlObj = new URL(url, 'https://example.com')
 	return urlObj.pathname
 }
 
-const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
+export const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
 	let auth = new Map<string, string>()
 
 	if (!authHeader) return Object.freeze(auth)
@@ -37,7 +37,7 @@ const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
 	return Object.freeze(auth)
 }
 
-const getCookies = (cookieHeader: string): ReadonlyMap<string, string> => {
+export const getCookies = (cookieHeader: string): ReadonlyMap<string, string> => {
 	const cookies = new Map<string, string>()
 	if (cookieHeader) {
 		cookieHeader.split(';').forEach((cookie) => {
@@ -50,7 +50,7 @@ const getCookies = (cookieHeader: string): ReadonlyMap<string, string> => {
 	return Object.freeze(cookies)
 }
 
-const getFullUrl = (req: IncomingMessage): string => {
+export const getFullUrl = (req: IncomingMessage): string => {
 	const protocol = req.socket.address() ? 'https' : 'http'
 	const host = req.headers.host || 'localhost'
 	return `${protocol}://${host}${req.url}`
