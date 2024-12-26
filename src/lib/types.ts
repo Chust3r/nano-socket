@@ -95,12 +95,6 @@ export interface Fluent {
 	emit(event: string, ...args: any[]): void
 }
 
-export interface AddressInfo {
-	address: string
-	family: string
-	port: number
-}
-
 export interface SocketRequest {
 	headers: Headers
 	url: string
@@ -108,7 +102,7 @@ export interface SocketRequest {
 	path: string
 	auth: ReadonlyMap<string, string>
 	cookies: ReadonlyMap<string, string>
-	address: AddressInfo | null
+	raw: any
 }
 
 export interface Namespace {

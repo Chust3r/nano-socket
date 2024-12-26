@@ -1,27 +1,28 @@
 {
-	"name": "nano-socket",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"test": "vitest"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"@types/bun": "^1.1.14",
-		"@types/node": "^22.10.2",
-		"@types/ws": "^8.5.13",
-		"@vitest/coverage-v8": "^2.1.8",
-		"tsx": "^4.19.2",
-		"typescript": "^5.7.2",
-		"vite": "^6.0.5",
-		"vitest": "^2.1.8"
-	},
-	"dependencies": {
-		"nanoid": "^5.0.9",
-		"ws": "^8.18.0"
-	}
+  "name": "nano-socket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "^1.1.14",
+    "@types/node": "^22.10.2",
+    "@types/ws": "^8.5.13",
+    "@vitest/coverage-v8": "^2.1.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.9",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v20.51.0",
+    "ws": "^8.18.0"
+  }
 }
