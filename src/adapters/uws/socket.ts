@@ -25,7 +25,8 @@ export class UWSClientAdapter
 	}
 
 	close(code?: number, reason?: string): void {
-		this.ws.end(code || 1000, reason || '')
+		this.ws.close()
+		this.isClosed = true
 		this.emit('close', code, reason)
 	}
 

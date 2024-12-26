@@ -67,6 +67,7 @@ export class UWSServer extends BaseServer {
 
 	private open(ws: WebSocket<WebSocketData>, req: SocketRequest) {
 		const uwsAdapter = new UWSClientAdapter(ws)
+		ws.getUserData = () => ({ adapter: uwsAdapter, req })
 		this.handleConnection(uwsAdapter, req)
 	}
 
@@ -137,6 +138,22 @@ export class UWSServer extends BaseServer {
 			secWebSocketExtensions,
 			context
 		)
+	}
+
+	private get websockets() {
+		return {
+			open: (ws: WebSocket<WebSocketData>) =>
+				this.open(ws, ws.getUserData().req),
+			message: (ws: WebSocket<WebSocketData>, message: CommonRecivedData) =>
+				this.message(ws, message),
+			close: (ws: WebSocket<WebSocketData>, code: number, reason: string) =>
+				this.close(ws, code, reason),
+			upgrade: (
+				res: HttpResponse,
+				req: HttpRequest,
+				context: us_socket_context_t
+			) => this.handleUpgrade(res, req, context),
+		}
 	}
 }
 
