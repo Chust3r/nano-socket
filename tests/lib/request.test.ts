@@ -1,26 +1,19 @@
-import { describe, it, expect, vi } from 'vitest'
-import { IncomingMessage } from 'http'
-import { Server } from 'bun'
+import { describe, it, expect } from 'vitest'
 import {
 	getQueryParams,
 	getPath,
 	getAuth,
 	getCookies,
-	getFullUrl,
-	getNodeRequest,
-	getBunRequest,
 } from '../../src/lib/request'
 
 describe('Get Query Params', () => {
-	it('Get Query Params From Path / URL', () => {
+	it('Should retrieve query parameters from a basic URL', () => {
 		const url = 'http://localhost:3000/'
 		const query = getQueryParams(url)
 		expect(query.size).toBe(0)
 	})
-})
 
-describe('Get Query Params From Complex URL', () => {
-	it('Get Query Params From Path / URL', () => {
+	it('Should retrieve query parameters from a complex URL', () => {
 		const url = 'http://localhost:3000/?foo=bar&baz=qux&bar=foo'
 		const query = getQueryParams(url)
 		expect(query.get('foo')).toBe('bar')
@@ -34,15 +27,13 @@ describe('Get Query Params From Complex URL', () => {
 })
 
 describe('Get Path', () => {
-	it('Get Path From URL', () => {
+	it('Should retrieve path from a basic URL', () => {
 		const url = 'http://localhost:3000/'
 		const path = getPath(url)
 		expect(path).toBe('/')
 	})
-})
 
-describe('Get Path', () => {
-	it('Get Path From Compound URL', () => {
+	it('Should retrieve path from a compound URL', () => {
 		const url = 'http://localhost:3000/foo/bar'
 		const path = getPath(url)
 		expect(path).toBe('/foo/bar')
@@ -50,15 +41,13 @@ describe('Get Path', () => {
 })
 
 describe('Get Auth', () => {
-	it('Get Auth From Header', () => {
+	it('Should retrieve auth token from a header string', () => {
 		const authHeader = 'foo'
 		const auth = getAuth(authHeader)
 		expect(auth.get('token')).toBe('foo')
 	})
-})
 
-describe('Get JSON Auth', () => {
-	it('Get Auth From Header', () => {
+	it('Should retrieve JSON auth data from a header string', () => {
 		const data = {
 			userId: 1,
 			token: 'foo',
@@ -71,7 +60,7 @@ describe('Get JSON Auth', () => {
 })
 
 describe('Get Cookies', () => {
-	it('Get Cookies From Header', () => {
+	it('Should retrieve cookies from a header string', () => {
 		const cookieHeader = 'sessionId=abc123; theme=dark; loggedIn=true'
 		const cookies = getCookies(cookieHeader)
 		expect(cookies.get('sessionId')).toBe('abc123')
