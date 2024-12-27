@@ -54,7 +54,7 @@ class NodeServerServer extends Server {
 			)
 		}
 
-		const { noServer, port, server, ...options } = this.options
+		const { noServer, port, server, path = '/', ...options } = this.options
 		if (this.options.noServer) {
 			this.server = new WebSocketServer({
 				noServer: true,
@@ -82,7 +82,17 @@ class NodeServerServer extends Server {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: IncomingMessage): void {
-		const path = req.url?.replace(this.options.path || '', '') || '/'
+		const basePath = this.options.path || '/'
+		if (req.url && !req.url.startsWith(basePath)) {
+			ws.terminate()
+			return
+		}
+
+		const relativePath = req.url?.substring(basePath.length) || '/'
+		const path = relativePath.startsWith('/')
+			? relativePath
+			: `/${relativePath}`
+
 		const namespace = this.namespaceManager.getOrCreate(path)
 
 		const socket = new SocketClient({
@@ -104,11 +114,13 @@ class NodeServerServer extends Server {
 	}
 
 	handleUpgrade(req: IncomingMessage, socket: any, head: Buffer): void {
+		const basePath = this.options.path || '/'
+		if (req.url && !req.url.startsWith(basePath)) {
+			socket.destroy()
+			return
+		}
+
 		if (this.options.noServer) {
-			if (this.options.path && !req.url?.startsWith(this.options.path)) {
-				socket.destroy()
-				return
-			}
 			this.server?.handleUpgrade(req, socket, head, (ws) => {
 				const wsClient = new NodeClientAdapter(ws)
 				this.handleConnection(wsClient, req)

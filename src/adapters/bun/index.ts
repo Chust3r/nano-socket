@@ -29,7 +29,7 @@ export class BunServerServer extends Server {
 	constructor(srv?: Partial<ServerOptions>, opts?: never)
 	constructor(
 		srv?: number | Partial<ServerOptions>,
-		opts?: Partial<ServerOptions>
+		opts?: Partial<ServerOptions>,
 	) {
 		super()
 
@@ -74,7 +74,7 @@ export class BunServerServer extends Server {
 
 	private message(
 		ws: ServerWebSocket<WebSocketData>,
-		message: CommonRecivedData
+		message: CommonRecivedData,
 	): void {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
@@ -85,7 +85,7 @@ export class BunServerServer extends Server {
 	private close(
 		ws: ServerWebSocket<WebSocketData>,
 		code: number,
-		reason: string
+		reason: string,
 	): void {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
@@ -94,7 +94,18 @@ export class BunServerServer extends Server {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
-		const path = req.path
+		const basePath = this.options.path || '/'
+
+		if (req.path && !req.path.startsWith(basePath)) {
+			ws.terminate()
+			return
+		}
+
+		const relativePath = req.path.substring(basePath.length) || '/'
+		const path = relativePath.startsWith('/')
+			? relativePath
+			: `/${relativePath}`
+
 		const namespace = this.namespaceManager.getOrCreate(path)
 
 		const socket = new SocketClient({
@@ -120,20 +131,21 @@ export class BunServerServer extends Server {
 			open: (ws: ServerWebSocket<WebSocketData>) => this.open(ws),
 			message: (
 				ws: ServerWebSocket<WebSocketData>,
-				message: CommonRecivedData
+				message: CommonRecivedData,
 			) => this.message(ws, message),
 			close: (
 				ws: ServerWebSocket<WebSocketData>,
 				code: number,
-				reason: string
+				reason: string,
 			) => this.close(ws, code, reason),
 		}
 	}
 
 	handleUpgrade(request: Request, server: BunServer): void {
-		if (this.options.path && !request.url?.startsWith(this.options.path)) {
-			return
-		}
+		const basePath = this.options.path || '/'
+		const url = new URL(request.url)
+		const path = url.pathname
+		if (!path.startsWith(basePath)) return
 
 		server.upgrade(request, {
 			data: {

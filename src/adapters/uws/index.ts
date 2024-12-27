@@ -93,7 +93,23 @@ export class UWSServer extends BaseServer {
 	}
 
 	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
-		const path = req.path
+		const basePath = this.options.path || '/'
+
+		if (req.path && !req.path.startsWith(basePath)) {
+			ws.terminate()
+			return
+		}
+
+		const relativePath = req.path?.substring(basePath.length) || '/'
+		const path = relativePath.startsWith('/')
+			? relativePath
+			: `/${relativePath}`
+
+		if (!path.startsWith('/')) {
+			ws.terminate()
+			return
+		}
+
 		const namespace = this.namespaceManager.getOrCreate(path)
 
 		const socket = new SocketClient({
@@ -125,9 +141,10 @@ export class UWSServer extends BaseServer {
 			req.getHeader('sec-websocket-extensions') || ''
 
 		const request = getuWSRequest(req)
+		const basePath = this.options.path || '/'
 
-		if (this.options.path && !request.path?.startsWith(this.options.path)) {
-			res.writeStatus('404 Not Found').end()
+		if (req.getUrl() && !req.getUrl().startsWith(basePath)) {
+			res.end()
 			return
 		}
 
@@ -138,22 +155,6 @@ export class UWSServer extends BaseServer {
 			secWebSocketExtensions,
 			context,
 		)
-	}
-
-	private get websockets() {
-		return {
-			open: (ws: WebSocket<WebSocketData>) =>
-				this.open(ws, ws.getUserData().req),
-			message: (ws: WebSocket<WebSocketData>, message: CommonRecivedData) =>
-				this.message(ws, message),
-			close: (ws: WebSocket<WebSocketData>, code: number, reason: string) =>
-				this.close(ws, code, reason),
-			upgrade: (
-				res: HttpResponse,
-				req: HttpRequest,
-				context: us_socket_context_t,
-			) => this.handleUpgrade(res, req, context),
-		}
 	}
 }
 
