@@ -56,10 +56,7 @@ export class SocketClient implements Socket {
 		this.ws.on('close', this.handleClose)
 	}
 
-	private handleMessage = (
-		data: CommonRecivedData,
-		isBinary?: boolean,
-	): void => {
+	private handleMessage = (data: CommonRecivedData): void => {
 		const { event, args } = this.parser.deserialize(data)
 		this.eventManager.emit(event, ...args)
 	}

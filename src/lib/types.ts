@@ -22,7 +22,7 @@ export type CommonRecivedData = string | Buffer<ArrayBufferLike> | RawData
 export interface CommonEventMap {
 	close(code?: number, reason?: any): void
 	error(err: ExtendedError): void
-	message(data: CommonRecivedData, isBinary?: boolean): void
+	message(data: CommonRecivedData): void
 }
 
 export interface CommonWebSocket {

@@ -16,9 +16,7 @@ export class NodeClientAdapter
 		super()
 		this.ws = ws
 		this.ws.on('close', (code, reason) => this.emit('close', code, reason))
-		this.ws.on('message', (data, isBinary) =>
-			this.emit('message', data, isBinary),
-		)
+		this.ws.on('message', (data) => this.emit('message', data))
 		this.ws.on('error', (err) => this.emit('error', err))
 	}
 
