@@ -1,5 +1,5 @@
-import { SocketClient } from '~core/client'
-import { SocketFluent } from '~types'
+import type { SocketClient } from '~core/client'
+import type { SocketFluent } from '~types'
 
 export class SocketClientFluent implements SocketFluent {
 	private socket: SocketClient

@@ -1,7 +1,7 @@
-import { SocketRequest } from '~types'
-import { Server } from 'bun'
-import { IncomingMessage } from 'http'
-import { HttpRequest } from 'uWebSockets.js'
+import type { SocketRequest } from '~types'
+import type { Server } from 'bun'
+import type { IncomingMessage } from 'node:http'
+import type { HttpRequest } from 'uWebSockets.js'
 
 export const getQueryParams = (path: string): ReadonlyMap<string, string> => {
 	const urlObj = new URL(path, 'https://example.com')
@@ -21,16 +21,16 @@ export const getPath = (url: string): string => {
 }
 
 export const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
-	let auth = new Map<string, string>()
+	const auth = new Map<string, string>()
 
 	if (!authHeader) return Object.freeze(auth)
 
 	try {
 		const parsedAuth = JSON.parse(authHeader)
 
-		Object.entries(parsedAuth).forEach(([key, value]) => {
+		for (const [key, value] of Object.entries(parsedAuth)) {
 			auth.set(key, String(value))
-		})
+		}
 	} catch {
 		auth.set('token', authHeader)
 	}
@@ -39,16 +39,17 @@ export const getAuth = (authHeader: string): ReadonlyMap<string, string> => {
 }
 
 export const getCookies = (
-	cookieHeader: string
+	cookieHeader: string,
 ): ReadonlyMap<string, string> => {
 	const cookies = new Map<string, string>()
 	if (cookieHeader) {
-		cookieHeader.split(';').forEach((cookie) => {
+		const cookieArray = cookieHeader.split(';')
+		for (const cookie of cookieArray) {
 			const [key, value] = cookie.split('=').map((item) => item.trim())
 			if (key && value) {
 				cookies.set(key, value)
 			}
-		})
+		}
 	}
 	return Object.freeze(cookies)
 }

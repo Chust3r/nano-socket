@@ -1,4 +1,4 @@
-import { ExtendedError, Middleware, Socket } from '~lib/types'
+import type { ExtendedError, Middleware, Socket } from '~lib/types'
 
 interface MiddlewareManagerOptions {
 	timeout?: number
@@ -26,7 +26,7 @@ export class MiddlewareManager {
 			const timer = setTimeout(() => {
 				if (!isNextCalled) {
 					socket.close()
-					let msg = `Middleware timeout: ${this.defaultTimeout}ms exceeded`
+					const msg = `Middleware timeout: ${this.defaultTimeout}ms exceeded`
 					done(new Error(msg))
 				}
 			}, this.defaultTimeout)

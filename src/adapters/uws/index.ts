@@ -1,4 +1,4 @@
-import {
+import type {
 	CommonRecivedData,
 	CommonWebSocket,
 	ExtendedError,
@@ -8,8 +8,8 @@ import {
 import { UWSClientAdapter } from './socket'
 import { Server as BaseServer } from '~core/server'
 import { SocketClient } from '~core/client'
-import {
-	App,
+import { App } from 'uWebSockets.js'
+import type {
 	HttpRequest,
 	HttpResponse,
 	us_socket_context_t,
@@ -55,7 +55,7 @@ export class UWSServer extends BaseServer {
 			close: (
 				ws: WebSocket<WebSocketData>,
 				code: number,
-				message: ArrayBuffer
+				message: ArrayBuffer,
 			) => this.close(ws, code, Buffer.from(message).toString()),
 			upgrade: this.handleUpgrade,
 		})
@@ -73,7 +73,7 @@ export class UWSServer extends BaseServer {
 
 	private message(
 		ws: WebSocket<WebSocketData>,
-		message: CommonRecivedData
+		message: CommonRecivedData,
 	): void {
 		const uwsAdapter = ws.getUserData().adapter
 		if (uwsAdapter) {
@@ -84,7 +84,7 @@ export class UWSServer extends BaseServer {
 	private close(
 		ws: WebSocket<WebSocketData>,
 		code: number,
-		reason: string
+		reason: string,
 	): void {
 		const uwsAdapter = ws.getUserData().adapter
 		if (uwsAdapter) {
@@ -117,7 +117,7 @@ export class UWSServer extends BaseServer {
 	private handleUpgrade = (
 		res: HttpResponse,
 		req: HttpRequest,
-		context: us_socket_context_t
+		context: us_socket_context_t,
 	) => {
 		const secWebSocketKey = req.getHeader('sec-websocket-key')
 		const secWebSocketProtocol = req.getHeader('sec-websocket-protocol') || ''
@@ -136,7 +136,7 @@ export class UWSServer extends BaseServer {
 			secWebSocketKey,
 			secWebSocketProtocol,
 			secWebSocketExtensions,
-			context
+			context,
 		)
 	}
 
@@ -151,7 +151,7 @@ export class UWSServer extends BaseServer {
 			upgrade: (
 				res: HttpResponse,
 				req: HttpRequest,
-				context: us_socket_context_t
+				context: us_socket_context_t,
 			) => this.handleUpgrade(res, req, context),
 		}
 	}

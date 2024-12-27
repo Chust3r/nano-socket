@@ -1,4 +1,4 @@
-import {
+import type {
 	CommonRecivedData,
 	CommonWebSocket,
 	ExtendedError,
@@ -9,7 +9,7 @@ import { BunClientAdapter } from './socket'
 import { Server } from '~core/server'
 import { SocketClient } from '~core/client'
 import { getBunRequest } from '~lib/request'
-import { Server as BunServer, ServerWebSocket } from 'bun'
+import type { Server as BunServer, ServerWebSocket } from 'bun'
 
 type WebSocketData = {
 	adapter: BunClientAdapter
@@ -47,7 +47,7 @@ export class BunServerServer extends Server {
 				websocket: this.websocket,
 				port: this.options.port ?? 3000,
 			})
-		} else if (srv instanceof Object && !(srv instanceof Array) && !opts) {
+		} else if (srv instanceof Object && !Array.isArray(srv) && !opts) {
 			this.options = srv as ServerOptions
 		} else if (srv instanceof Object && opts) {
 			throw new Error('Invalid Server Options')

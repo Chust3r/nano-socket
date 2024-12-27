@@ -1,4 +1,8 @@
-import { CommonSendData, CommonWebSocket, WebSocketReadyState } from '~types'
+import type {
+	CommonSendData,
+	CommonWebSocket,
+	WebSocketReadyState,
+} from '~types'
 import type { WebSocket } from 'ws'
 import { CommonClientEmitter } from '~core/common-emitter'
 
@@ -13,7 +17,7 @@ export class NodeClientAdapter
 		this.ws = ws
 		this.ws.on('close', (code, reason) => this.emit('close', code, reason))
 		this.ws.on('message', (data, isBinary) =>
-			this.emit('message', data, isBinary)
+			this.emit('message', data, isBinary),
 		)
 		this.ws.on('error', (err) => this.emit('error', err))
 	}

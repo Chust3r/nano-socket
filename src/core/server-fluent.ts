@@ -1,7 +1,7 @@
-import { Fluent } from '~types'
-import { Parser } from '~core/parser'
-import { ClientsConnectedManager } from '~managers/clients-connected'
-import { RoomManager } from '~managers/rooms'
+import type { Fluent } from '~types'
+import type { Parser } from '~core/parser'
+import type { ClientsConnectedManager } from '~managers/clients-connected'
+import type { RoomManager } from '~managers/rooms'
 
 interface ServerFluentIProps {
 	parser: Parser
@@ -40,7 +40,7 @@ export class ServerFluent implements Fluent {
 
 		if (this.targetRooms.size > 0) {
 			clients = this.roomManager.getRoomsMembers(
-				...Array.from(this.targetRooms)
+				...Array.from(this.targetRooms),
 			)
 		}
 
@@ -51,11 +51,11 @@ export class ServerFluent implements Fluent {
 		if (this.excludeRooms.size > 0) {
 			clients = clients.filter((client) => {
 				const clientRooms = this.roomManager.getMemberRooms(client)
-				const isInExcludedRoom = Array.from(this.excludeRooms).some(
-					(room) => clientRooms.includes(room)
+				const isInExcludedRoom = Array.from(this.excludeRooms).some((room) =>
+					clientRooms.includes(room),
 				)
 				const isInTargetRoom = Array.from(this.targetRooms).some((room) =>
-					clientRooms.includes(room)
+					clientRooms.includes(room),
 				)
 
 				return !(isInExcludedRoom && !isInTargetRoom)
@@ -75,13 +75,14 @@ export class ServerFluent implements Fluent {
 	}
 
 	exclude(...args: string[]): this {
-		args.forEach((arg) => {
+		for (const arg of args) {
 			if (this.clients.has(arg)) {
 				this.excludeIds.add(arg)
 			} else {
 				this.excludeRooms.add(arg)
 			}
-		})
+		}
+
 		return this
 	}
 

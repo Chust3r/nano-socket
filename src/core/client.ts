@@ -1,4 +1,4 @@
-import {
+import type {
 	Socket,
 	CommonWebSocket,
 	SocketEventMap,
@@ -6,14 +6,14 @@ import {
 	SocketFluent,
 	CommonSendData,
 	SocketRequest,
-	WebSocketReadyState,
 } from '~types'
+import { WebSocketReadyState } from '~types'
 import { nanoid } from 'nanoid'
-import { Parser } from '~core/parser'
+import type { Parser } from '~core/parser'
 import { ClientEventsManager } from '~managers/client-events'
-import { ClientsConnectedManager } from '~managers/clients-connected'
-import { RoomManager } from '~core/managers/rooms'
-import { SocketClientFluent } from './client-fluent'
+import type { ClientsConnectedManager } from '~managers/clients-connected'
+import type { RoomManager } from '~core/managers/rooms'
+import { SocketClientFluent } from '~core/client-fluent'
 
 interface SocketClientProps {
 	ws: CommonWebSocket
@@ -32,10 +32,10 @@ export class SocketClient implements Socket {
 	private eventManager = new ClientEventsManager()
 	private targetRooms = new Set<string>()
 	private fluent: SocketFluent
-	private isBroadcast: boolean = false
+	private isBroadcast = false
 	public data = new Map<string, any>()
 	private req: SocketRequest
-	private isClosed: boolean = false
+	private isClosed = false
 
 	constructor({
 		ws,
@@ -58,7 +58,7 @@ export class SocketClient implements Socket {
 
 	private handleMessage = (
 		data: CommonRecivedData,
-		isBinary?: boolean
+		isBinary?: boolean,
 	): void => {
 		const { event, args } = this.parser.deserialize(data)
 		this.eventManager.emit(event, ...args)
@@ -118,7 +118,7 @@ export class SocketClient implements Socket {
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
-			: (...args: any[]) => void | Promise<void>
+			: (...args: any[]) => void | Promise<void>,
 	): void {
 		this.eventManager.on(event, cb)
 	}
@@ -133,7 +133,7 @@ export class SocketClient implements Socket {
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
-			: (...args: any[]) => void | Promise<void>
+			: (...args: any[]) => void | Promise<void>,
 	): void {
 		this.eventManager.once(event, cb)
 	}
@@ -174,7 +174,9 @@ export class SocketClient implements Socket {
 	}
 
 	join(...rooms: string[]): void {
-		rooms.forEach((room) => this.roomManager.add(room, this._id))
+		for (const room of rooms) {
+			this.roomManager.add(room, this._id)
+		}
 	}
 
 	leave(...rooms: string[]): void {
@@ -182,11 +184,12 @@ export class SocketClient implements Socket {
 	}
 
 	to(...rooms: string[]) {
-		rooms.forEach((room) => {
-			if (!this.in(room)) {
+		for (const room of rooms) {
+			if (this.in(room)) {
 				this.join(room)
 			}
-		})
+		}
+
 		this.setTargetRooms(...rooms)
 		return this.fluent
 	}

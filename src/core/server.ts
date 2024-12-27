@@ -6,7 +6,7 @@ import {
 	Fluent,
 	Namespace,
 } from '~types'
-import { NamespaceManager } from './managers/namespaces'
+import { NamespaceManager } from '~core/managers/namespaces'
 
 export class Server implements CommonServer {
 	protected parser: Parser

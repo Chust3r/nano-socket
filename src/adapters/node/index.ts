@@ -1,4 +1,4 @@
-import { IncomingMessage } from 'node:http'
+import type { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
 import type {
 	CommonWebSocket,
@@ -27,7 +27,7 @@ class NodeServerServer extends Server {
 	constructor(srv: NodeServerCompatible, opts?: Partial<ServerOptions>)
 	constructor(
 		srv?: NodeServerCompatible | number | Partial<ServerOptions>,
-		opts?: Partial<ServerOptions>
+		opts?: Partial<ServerOptions>,
 	) {
 		super()
 
@@ -48,13 +48,9 @@ class NodeServerServer extends Server {
 		if (this.options.port && this.options.server) {
 			throw new Error('Cannot specify both a port and a server.')
 		}
-		if (
-			!this.options.port &&
-			!this.options.server &&
-			!this.options.noServer
-		) {
+		if (!this.options.port && !this.options.server && !this.options.noServer) {
 			throw new Error(
-				'Invalid configuration: Provide a port, server, or noServer option.'
+				'Invalid configuration: Provide a port, server, or noServer option.',
 			)
 		}
 
@@ -119,7 +115,7 @@ class NodeServerServer extends Server {
 			})
 		} else {
 			throw new Error(
-				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server without specifying a port or HTTP server directly. Pass only the configuration object (e.g. { path: 'yourPath' }) to activate the "noServer" option.`
+				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server without specifying a port or HTTP server directly. Pass only the configuration object (e.g. { path: 'yourPath' }) to activate the "noServer" option.`,
 			)
 		}
 	}

@@ -30,30 +30,30 @@ export class ClientsConnectedManager {
 	getClientsExcluding(...excludedIds: string[]): Socket[] {
 		const excludedSet = new Set(excludedIds)
 		return Array.from(this.clients.values()).filter(
-			(client) => !excludedSet.has(client.id)
+			(client) => !excludedSet.has(client.id),
 		)
 	}
 
 	broadcast(message: any): void {
-		this.clients.forEach((client) => {
+		for (const client of this.clients.values()) {
 			client.send(message)
-		})
+		}
 	}
 
 	broadcastExcluding(message: any, ...excludedIds: string[]): void {
 		const excludedSet = new Set(excludedIds)
 
-		this.clients.forEach((client) => {
+		for (const client of this.clients.values()) {
 			if (!excludedSet.has(client.id)) {
 				client.send(message)
 			}
-		})
+		}
 	}
 
 	sendToSpecificClients(message: any, ...ids: string[]): void {
-		ids.forEach((id) => {
+		for (const id of ids) {
 			const client = this.clients.get(id)
 			client?.send(message)
-		})
+		}
 	}
 }

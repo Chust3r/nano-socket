@@ -1,5 +1,5 @@
-import { CommonEventMap } from '~types'
-import { EventEmitter } from './event-emitter'
+import type { CommonEventMap } from '~types'
+import { EventEmitter } from '~core/event-emitter'
 
 export class CommonClientEmitter {
 	private emitter = new EventEmitter()

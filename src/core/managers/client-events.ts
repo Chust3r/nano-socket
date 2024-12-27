@@ -8,7 +8,7 @@ export class ClientEventsManager {
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
-			: (...args: any[]) => void
+			: (...args: any[]) => void,
 	): void {
 		this.emitter.on(event, cb)
 	}
@@ -17,7 +17,7 @@ export class ClientEventsManager {
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
-			: (...args: any[]) => void
+			: (...args: any[]) => void,
 	): void {
 		this.emitter.once(event, cb)
 	}

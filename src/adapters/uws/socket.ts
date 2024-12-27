@@ -1,6 +1,7 @@
-import { CommonSendData, CommonWebSocket, WebSocketReadyState } from '~types'
+import type { CommonSendData, CommonWebSocket } from '~types'
+import { WebSocketReadyState } from '~types'
 import { CommonClientEmitter } from '~core/common-emitter'
-import { WebSocket } from 'uWebSockets.js'
+import type { WebSocket } from 'uWebSockets.js'
 
 type WebSocketData = {
 	adapter: UWSClientAdapter
@@ -11,7 +12,7 @@ export class UWSClientAdapter
 	implements CommonWebSocket
 {
 	private ws: WebSocket<WebSocketData>
-	private isClosed: boolean = false
+	private isClosed = false
 
 	constructor(ws: WebSocket<WebSocketData>) {
 		super()
@@ -19,9 +20,7 @@ export class UWSClientAdapter
 	}
 
 	get readyState(): WebSocketReadyState {
-		return this.isClosed
-			? WebSocketReadyState.CLOSED
-			: WebSocketReadyState.OPEN
+		return this.isClosed ? WebSocketReadyState.CLOSED : WebSocketReadyState.OPEN
 	}
 
 	close(code?: number, reason?: string): void {

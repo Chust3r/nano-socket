@@ -3,7 +3,12 @@ import { ClientsConnectedManager } from '~managers/clients-connected'
 import { Parser } from '~core/parser'
 import { RoomManager } from '~managers/rooms'
 import { MiddlewareManager } from '~managers/middlewares'
-import { Middleware, ServerEventMap, Fluent, Namespace as Nam } from '~types'
+import type {
+	Middleware,
+	ServerEventMap,
+	Fluent,
+	Namespace as Nam,
+} from '~types'
 import { ServerFluent } from '~core/server-fluent'
 
 export class Namespace implements Nam {

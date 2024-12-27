@@ -19,7 +19,7 @@ export class EventEmitter<Events extends Record<string, any>> {
 
 	on<Event extends keyof Events>(
 		event: Event,
-		listener: Listener<Events[Event]>
+		listener: Listener<Events[Event]>,
 	): void {
 		const pattern =
 			this.getWildcardPattern(event as string) || (event as string)
@@ -28,10 +28,10 @@ export class EventEmitter<Events extends Record<string, any>> {
 			this.events.set(pattern, [])
 		}
 
-		this.events.get(pattern)!.push(listener)
+		this.events.get(pattern)?.push(listener)
 
 		if (typeof listener === 'object') {
-			let listenersSet = this.weakListeners.get(listener) || new Set()
+			const listenersSet = this.weakListeners.get(listener) || new Set()
 			listenersSet.add(listener)
 			this.weakListeners.set(listener, listenersSet)
 		}
@@ -40,7 +40,7 @@ export class EventEmitter<Events extends Record<string, any>> {
 	once<Event extends keyof Events>(
 		event: Event,
 		listener: Listener<Events[Event]>,
-		maxEmits: number = 1
+		maxEmits = 1,
 	): void {
 		let emitCount = 0
 
@@ -59,15 +59,16 @@ export class EventEmitter<Events extends Record<string, any>> {
 
 	off<Event extends keyof Events>(
 		event: Event,
-		listener?: Listener<Events[Event]>
+		listener?: Listener<Events[Event]>,
 	): void {
 		const pattern =
 			this.getWildcardPattern(event as string) || (event as string)
-		if (this.events.has(pattern)) {
+		const listeners = this.events.get(pattern)
+
+		if (listeners) {
 			if (!listener) {
 				this.events.delete(pattern)
 			} else {
-				const listeners = this.events.get(pattern)!
 				const filtered = listeners.filter((l) => l !== listener)
 				this.events.set(pattern, filtered)
 			}
@@ -82,15 +83,12 @@ export class EventEmitter<Events extends Record<string, any>> {
 		const promises: Promise<void>[] = []
 
 		const processedArgs = args.map((arg) =>
-			typeof arg === 'function' ? arg() : arg
+			typeof arg === 'function' ? arg() : arg,
 		)
 
 		for (const [key, listeners] of this.events.entries()) {
-			if (
-				typeof key === 'string' &&
-				this.eventMatches(key, event as string)
-			) {
-				listeners.forEach((listener) => {
+			if (typeof key === 'string' && this.eventMatches(key, event as string)) {
+				for (const listener of listeners) {
 					try {
 						if (key.includes('*')) {
 							const result = listener(event as string, ...processedArgs)
@@ -103,16 +101,14 @@ export class EventEmitter<Events extends Record<string, any>> {
 						this.emitError(event as string, err as Error)
 						errors.push(err as Error)
 					}
-				})
+				}
 			}
 		}
 
 		if (promises.length > 0) {
 			return Promise.all(promises)
 				.then(() =>
-					errors.length > 0
-						? { success: false, errors }
-						: { success: true }
+					errors.length > 0 ? { success: false, errors } : { success: true },
 				)
 				.catch((err) => {
 					this.emitError(event as string, err as Error)
@@ -141,7 +137,9 @@ export class EventEmitter<Events extends Record<string, any>> {
 	}
 
 	private emitError(event: string, err: Error): void {
-		this.errorListeners.forEach((listener) => listener(event, err))
+		for (const listener of this.errorListeners) {
+			listener(event, err)
+		}
 	}
 
 	private getWildcardPattern(event: string): string | undefined {

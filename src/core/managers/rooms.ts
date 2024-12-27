@@ -51,12 +51,14 @@ export class RoomManager {
 	getRoomsMembers(...rooms: string[]): string[] {
 		const clientIdsSet = new Set<string>()
 
-		rooms.forEach((room) => {
+		for (const room of rooms) {
 			const clientsInRoom = this.rooms.get(room)
 			if (clientsInRoom) {
-				clientsInRoom.forEach((clientId) => clientIdsSet.add(clientId))
+				for (const clientId of clientsInRoom) {
+					clientIdsSet.add(clientId)
+				}
 			}
-		})
+		}
 
 		return Array.from(clientIdsSet)
 	}
@@ -64,12 +66,15 @@ export class RoomManager {
 	deleteRoom(room: string) {
 		const members = this.rooms.get(room)
 		if (members) {
-			members.forEach((memberId) => {
-				this.members.get(memberId)?.delete(room)
-				if (this.members.get(memberId)?.size === 0) {
-					this.members.delete(memberId)
+			for (const memberId of members) {
+				const member = this.members.get(memberId)
+				if (member) {
+					member.delete(room)
+					if (member.size === 0) {
+						this.members.delete(memberId)
+					}
 				}
-			})
+			}
 			this.rooms.delete(room)
 		}
 	}
@@ -84,14 +89,16 @@ export class RoomManager {
 			this.rooms.set(target, new Set())
 		}
 
-		rooms.forEach((room) => {
+		for (const room of rooms) {
 			const members = this.rooms.get(room)
 
 			if (members) {
-				members.forEach((member) => this.add(target, member))
+				for (const member of members) {
+					this.add(target, member)
+				}
 				this.deleteRoom(room)
 			}
-		})
+		}
 	}
 
 	getMemberRooms(id: string): string[] {
@@ -102,13 +109,15 @@ export class RoomManager {
 		if (targetRooms.length === 0) {
 			const memberRooms = this.members.get(id)
 			if (memberRooms) {
-				memberRooms.forEach((room) => this._remove(room, id))
+				for (const room of memberRooms) {
+					this._remove(room, id)
+				}
 				this.members.delete(id)
 			}
 		} else {
-			targetRooms.forEach((room) => {
+			for (const room of targetRooms) {
 				this._remove(room, id)
-			})
+			}
 
 			const memberRooms = this.members.get(id)
 			if (memberRooms && memberRooms.size === 0) {

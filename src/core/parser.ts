@@ -1,4 +1,4 @@
-import { CommonRecivedData } from '~types'
+import type { CommonRecivedData } from '~types'
 
 export class Parser {
 	deserialize(data: CommonRecivedData) {
@@ -7,7 +7,7 @@ export class Parser {
 
 		if (!Array.isArray(parsed) || parsed.length === 0) {
 			throw new Error(
-				'Invalid message format: Expected an array with event and arguments'
+				'Invalid message format: Expected an array with event and arguments',
 			)
 		}
 
@@ -23,7 +23,7 @@ export class Parser {
 	serialize(event: string, ...args: any[]) {
 		if (typeof event !== 'string' || !Array.isArray(args)) {
 			throw new Error(
-				'Invalid message format: Event should be a string and args should be an array'
+				'Invalid message format: Event should be a string and args should be an array',
 			)
 		}
 
@@ -47,9 +47,7 @@ export class Parser {
 		}
 		if (Array.isArray(data)) {
 			return data
-				.map((item) =>
-					Buffer.isBuffer(item) ? item.toString('utf-8') : ''
-				)
+				.map((item) => (Buffer.isBuffer(item) ? item.toString('utf-8') : ''))
 				.join('')
 		}
 		if (data instanceof ArrayBuffer) {

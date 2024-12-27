@@ -1,6 +1,6 @@
 import { Server as HTTPServer } from 'node:http'
 import { Server as HTTPSServer } from 'node:https'
-import { Http2SecureServer, Http2Server } from 'node:http2'
+import type { Http2SecureServer, Http2Server } from 'node:http2'
 import type { RawData } from 'ws'
 
 export interface ExtendedError extends Error {
@@ -58,12 +58,12 @@ export interface Socket {
 	send(data: CommonSendData): void
 	on<K extends keyof SocketEventMap>(
 		event: K,
-		callback: SocketEventMap[K]
+		callback: SocketEventMap[K],
 	): void
 	on(event: string, callback: (...args: any[]) => void): void
 	once<K extends keyof SocketEventMap>(
 		event: K,
-		callback: SocketEventMap[K]
+		callback: SocketEventMap[K],
 	): void
 	once(event: string, callback: (...args: any[]) => void): void
 	emit(event: string, ...args: any[]): void
@@ -86,7 +86,7 @@ export interface SocketFluent {
 
 export type Middleware = (
 	socket: Socket,
-	next: (err?: ExtendedError) => void
+	next: (err?: ExtendedError) => void,
 ) => void | Promise<void>
 
 export interface Fluent {
