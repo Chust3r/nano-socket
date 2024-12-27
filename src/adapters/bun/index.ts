@@ -67,6 +67,7 @@ export class BunServerServer extends Server {
 
 	private open(ws: ServerWebSocket<WebSocketData>) {
 		const bunWS = new BunClientAdapter(ws)
+		ws.data.adapter = bunWS
 		const req = getBunRequest(ws.data.req, ws.data.server)
 		this.handleConnection(bunWS, req)
 	}

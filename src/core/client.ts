@@ -6,6 +6,7 @@ import {
 	SocketFluent,
 	CommonSendData,
 	SocketRequest,
+	WebSocketReadyState,
 } from '~types'
 import { nanoid } from 'nanoid'
 import { Parser } from '~core/parser'
@@ -34,6 +35,7 @@ export class SocketClient implements Socket {
 	private isBroadcast: boolean = false
 	public data = new Map<string, any>()
 	private req: SocketRequest
+	private isClosed: boolean = false
 
 	constructor({
 		ws,
@@ -63,6 +65,9 @@ export class SocketClient implements Socket {
 	}
 
 	private handleClose = (): void => {
+		if (this.isClosed) return
+		this.isClosed = true
+
 		this.clients.remove(this._id)
 		this.roomManager.remove(this._id)
 		this.eventManager.emit('disconnect', 1000, 'Socket Closed')
@@ -119,7 +124,9 @@ export class SocketClient implements Socket {
 	}
 
 	send(data: CommonSendData): void {
-		this.ws.send(data)
+		if (this.ws.readyState === WebSocketReadyState.OPEN) {
+			this.ws.send(data)
+		}
 	}
 
 	once<K extends keyof SocketEventMap | string>(
