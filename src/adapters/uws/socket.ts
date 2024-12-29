@@ -1,7 +1,7 @@
+import type { WebSocket } from 'uWebSockets.js'
+import { CommonClientEmitter } from '~core/common-emitter'
 import type { CommonSendData, CommonWebSocket } from '~types'
 import { WebSocketReadyState } from '~types'
-import { CommonClientEmitter } from '~core/common-emitter'
-import type { WebSocket } from 'uWebSockets.js'
 
 type WebSocketData = {
 	adapter: UWSClientAdapter

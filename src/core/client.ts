@@ -1,19 +1,19 @@
-import type {
-	Socket,
-	CommonWebSocket,
-	SocketEventMap,
-	CommonRecivedData,
-	SocketFluent,
-	CommonSendData,
-	SocketRequest,
-} from '~types'
-import { WebSocketReadyState } from '~types'
 import { nanoid } from 'nanoid'
+import { SocketClientFluent } from '~core/client-fluent'
+import type { RoomManager } from '~core/managers/rooms'
 import type { Parser } from '~core/parser'
 import { ClientEventsManager } from '~managers/client-events'
 import type { ClientsConnectedManager } from '~managers/clients-connected'
-import type { RoomManager } from '~core/managers/rooms'
-import { SocketClientFluent } from '~core/client-fluent'
+import type {
+	CommonRecivedData,
+	CommonSendData,
+	CommonWebSocket,
+	Socket,
+	SocketEventMap,
+	SocketFluent,
+	SocketRequest,
+} from '~types'
+import { WebSocketReadyState } from '~types'
 
 interface SocketClientProps {
 	ws: CommonWebSocket

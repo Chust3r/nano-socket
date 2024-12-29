@@ -1,7 +1,7 @@
-import type { Fluent } from '~types'
 import type { Parser } from '~core/parser'
 import type { ClientsConnectedManager } from '~managers/clients-connected'
 import type { RoomManager } from '~managers/rooms'
+import type { Fluent } from '~types'
 
 interface ServerFluentIProps {
 	parser: Parser

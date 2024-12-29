@@ -1,15 +1,15 @@
-import { ServerEventsManager } from '~managers/server-events'
-import { ClientsConnectedManager } from '~managers/clients-connected'
 import { Parser } from '~core/parser'
-import { RoomManager } from '~managers/rooms'
-import { MiddlewareManager } from '~managers/middlewares'
-import type {
-	Middleware,
-	ServerEventMap,
-	Fluent,
-	Namespace as Nam,
-} from '~types'
 import { ServerFluent } from '~core/server-fluent'
+import { ClientsConnectedManager } from '~managers/clients-connected'
+import { MiddlewareManager } from '~managers/middlewares'
+import { RoomManager } from '~managers/rooms'
+import { ServerEventsManager } from '~managers/server-events'
+import type {
+	Fluent,
+	Middleware,
+	Namespace as Nam,
+	ServerEventMap,
+} from '~types'
 
 export class Namespace implements Nam {
 	protected parser: Parser

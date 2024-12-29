@@ -1,7 +1,7 @@
-import type { SocketRequest } from '~types'
-import type { Server } from 'bun'
 import type { IncomingMessage } from 'node:http'
+import type { Server } from 'bun'
 import type { HttpRequest } from 'uWebSockets.js'
+import type { SocketRequest } from '~types'
 
 export const getQueryParams = (path: string): ReadonlyMap<string, string> => {
 	const urlObj = new URL(path, 'https://example.com')

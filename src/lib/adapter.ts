@@ -1,5 +1,5 @@
-import type { NodeServerCompatible, HTTPSServer, HTTPServer } from '~types'
 import { Server } from 'node:http'
+import type { HTTPSServer, HTTPServer, NodeServerCompatible } from '~types'
 
 export const adaptToHttpServer = (
 	server: NodeServerCompatible,

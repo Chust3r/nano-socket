@@ -1,12 +1,12 @@
+import { NamespaceManager } from '~core/managers/namespaces'
 import { Parser } from '~core/parser'
 import type {
 	Server as CommonServer,
-	ServerEventMap,
-	Namespace,
-	Middleware,
 	Fluent,
+	Middleware,
+	Namespace,
+	ServerEventMap,
 } from '~types'
-import { NamespaceManager } from '~core/managers/namespaces'
 
 export class Server implements CommonServer {
 	protected parser: Parser

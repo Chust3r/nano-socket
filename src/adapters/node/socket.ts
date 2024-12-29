@@ -1,10 +1,10 @@
+import type { WebSocket } from 'ws'
+import { CommonClientEmitter } from '~core/common-emitter'
 import type {
 	CommonSendData,
 	CommonWebSocket,
 	WebSocketReadyState,
 } from '~types'
-import type { WebSocket } from 'ws'
-import { CommonClientEmitter } from '~core/common-emitter'
 
 export class NodeClientAdapter
 	extends CommonClientEmitter

@@ -1,3 +1,7 @@
+import type { Server as BunServer, ServerWebSocket } from 'bun'
+import { SocketClient } from '~core/client'
+import { Server } from '~core/server'
+import { getBunRequest } from '~lib/request'
 import type {
 	CommonRecivedData,
 	CommonWebSocket,
@@ -6,10 +10,6 @@ import type {
 	SocketRequest,
 } from '~types'
 import { BunClientAdapter } from './socket'
-import { Server } from '~core/server'
-import { SocketClient } from '~core/client'
-import { getBunRequest } from '~lib/request'
-import type { Server as BunServer, ServerWebSocket } from 'bun'
 
 type WebSocketData = {
 	adapter: BunClientAdapter

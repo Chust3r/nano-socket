@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { Parser } from '../../src/core/parser'
 
 describe('Parser', () => {
@@ -13,7 +13,7 @@ describe('Parser', () => {
 	it('Should throw an error if serialize is called with invalid arguments', () => {
 		const parser = new Parser()
 		expect(() => parser.serialize(123 as any, [1, 2, 3])).toThrowError(
-			'Invalid message format: Event should be a string and args should be an array'
+			'Invalid message format: Event should be a string and args should be an array',
 		)
 	})
 
@@ -28,7 +28,7 @@ describe('Parser', () => {
 		const parser = new Parser()
 		const invalidData = JSON.stringify({ event: 'testEvent', args: [] })
 		expect(() => parser.deserialize(invalidData)).toThrowError(
-			'Invalid message format: Expected an array with event and arguments'
+			'Invalid message format: Expected an array with event and arguments',
 		)
 	})
 
@@ -36,7 +36,7 @@ describe('Parser', () => {
 		const parser = new Parser()
 		const invalidData = JSON.stringify([123, 1, 2, 3])
 		expect(() => parser.deserialize(invalidData)).toThrowError(
-			'Event should be a string'
+			'Event should be a string',
 		)
 	})
 
@@ -44,16 +44,13 @@ describe('Parser', () => {
 		const parser = new Parser()
 		const invalidJSON = 'invalid-json'
 		expect(() => parser.deserialize(invalidJSON)).toThrowError(
-			'Invalid JSON format in the data'
+			'Invalid JSON format in the data',
 		)
 	})
 
 	it('Should convert Buffer data to a string', () => {
 		const parser = new Parser()
-		const buffer = Buffer.from(
-			JSON.stringify(['testEvent', 1, 2, 3]),
-			'utf-8'
-		)
+		const buffer = Buffer.from(JSON.stringify(['testEvent', 1, 2, 3]), 'utf-8')
 		const result = parser.deserialize(buffer)
 		expect(result).toEqual({ event: 'testEvent', args: [1, 2, 3] })
 	})
@@ -62,7 +59,7 @@ describe('Parser', () => {
 		const parser = new Parser()
 		const invalidData = 12345 as any
 		expect(() => parser.deserialize(invalidData)).toThrowError(
-			'Invalid data format received'
+			'Invalid data format received',
 		)
 	})
 })

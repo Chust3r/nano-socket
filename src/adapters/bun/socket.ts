@@ -1,10 +1,10 @@
+import type { ServerWebSocket } from 'bun'
+import { CommonClientEmitter } from '~core/common-emitter'
 import type {
 	CommonSendData,
 	CommonWebSocket,
 	WebSocketReadyState,
 } from '~types'
-import { CommonClientEmitter } from '~core/common-emitter'
-import type { ServerWebSocket } from 'bun'
 
 type WebSocketData = {
 	adapter?: BunClientAdapter

@@ -1,6 +1,6 @@
 import { Server as HTTPServer } from 'node:http'
-import { Server as HTTPSServer } from 'node:https'
 import type { Http2SecureServer, Http2Server } from 'node:http2'
+import { Server as HTTPSServer } from 'node:https'
 import type { RawData } from 'ws'
 
 export interface ExtendedError extends Error {

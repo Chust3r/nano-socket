@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-	getQueryParams,
-	getPath,
 	getAuth,
 	getCookies,
+	getPath,
+	getQueryParams,
 } from '../../src/lib/request'
 
 describe('Get Query Params', () => {

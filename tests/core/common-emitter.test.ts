@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { CommonClientEmitter } from '../../src/core/common-emitter'
-import { ExtendedError, CommonRecivedData } from '../../src/lib/types'
+import type { CommonRecivedData, ExtendedError } from '../../src/lib/types'
 
 describe('CommonClientEmitter', () => {
 	it('Should register and trigger the "close" event', () => {

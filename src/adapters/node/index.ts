@@ -1,15 +1,15 @@
 import type { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
+import { SocketClient } from '~core/client'
+import { Server } from '~core/server'
+import { adaptToHttpServer } from '~lib/adapter'
+import { getNodeRequest } from '~lib/request'
 import type {
 	CommonWebSocket,
-	ServerOptions,
 	NodeServerCompatible,
+	ServerOptions,
 } from '~types'
 import { NodeClientAdapter } from './socket'
-import { Server } from '~core/server'
-import { SocketClient } from '~core/client'
-import { getNodeRequest } from '~lib/request'
-import { adaptToHttpServer } from '~lib/adapter'
 
 interface InternalServerOptions {
 	port: number
