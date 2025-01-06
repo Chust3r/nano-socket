@@ -2,14 +2,13 @@
 	"name": "nano-socket",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
 	"scripts": {
 		"test": "vitest",
 		"lint": "biome check --write"
 	},
 	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"author": "Chust3r",
+	"license": "MIT",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@types/bun": "^1.1.14",
