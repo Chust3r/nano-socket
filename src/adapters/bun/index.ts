@@ -3,10 +3,10 @@ import { SocketClient } from '~core/client'
 import { Server } from '~core/server'
 import { getBunRequest } from '~lib/request'
 import type {
-	CommonRecivedData,
-	CommonWebSocket,
 	ExtendedError,
+	IncomingData,
 	ServerOptions,
+	SocketAdapter,
 	SocketRequest,
 } from '~types'
 import { BunClientAdapter } from './socket'
@@ -74,7 +74,7 @@ export class BunServerServer extends Server {
 
 	private message(
 		ws: ServerWebSocket<WebSocketData>,
-		message: CommonRecivedData,
+		message: IncomingData,
 	): void {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
@@ -93,7 +93,7 @@ export class BunServerServer extends Server {
 		}
 	}
 
-	private handleConnection(ws: CommonWebSocket, req: SocketRequest): void {
+	private handleConnection(ws: SocketAdapter, req: SocketRequest): void {
 		const basePath = this.options.path || '/'
 
 		if (req.path && !req.path.startsWith(basePath)) {
@@ -129,10 +129,8 @@ export class BunServerServer extends Server {
 	get websocket() {
 		return {
 			open: (ws: ServerWebSocket<WebSocketData>) => this.open(ws),
-			message: (
-				ws: ServerWebSocket<WebSocketData>,
-				message: CommonRecivedData,
-			) => this.message(ws, message),
+			message: (ws: ServerWebSocket<WebSocketData>, message: IncomingData) =>
+				this.message(ws, message),
 			close: (
 				ws: ServerWebSocket<WebSocketData>,
 				code: number,

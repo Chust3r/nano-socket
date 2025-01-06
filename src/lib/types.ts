@@ -3,11 +3,7 @@ import type { Http2SecureServer, Http2Server } from 'node:http2'
 import { Server as HTTPSServer } from 'node:https'
 import type { RawData } from 'ws'
 
-export interface ExtendedError extends Error {
-	code?: number
-	timestamp?: string
-	context?: string
-}
+export interface ExtendedError extends Error {}
 
 export enum WebSocketReadyState {
 	CONNECTING = 0,
@@ -16,21 +12,24 @@ export enum WebSocketReadyState {
 	CLOSED = 3,
 }
 
-export type CommonSendData = any
-export type CommonRecivedData = string | Buffer<ArrayBufferLike> | RawData
+export type OutgoingData = any
+export type IncomingData = string | Buffer<ArrayBufferLike> | RawData
 
-export interface CommonEventMap {
+export interface SocketAdapterEventMap {
 	close(code?: number, reason?: any): void
 	error(err: ExtendedError): void
-	message(data: CommonRecivedData): void
+	message(data: IncomingData): void
 }
 
-export interface CommonWebSocket {
+export interface SocketAdapter {
 	readonly readyState: WebSocketReadyState
-	send(data: CommonSendData): void
+	send(data: OutgoingData): void
 	close(code?: number, reason?: any): void
 	terminate(): void
-	on<K extends keyof CommonEventMap>(event: K, cb: CommonEventMap[K]): void
+	on<K extends keyof SocketAdapterEventMap>(
+		event: K,
+		cb: SocketAdapterEventMap[K],
+	): void
 }
 
 export interface ServerEventMap {
@@ -55,7 +54,7 @@ export interface SocketEventMap {
 export interface Socket {
 	readonly id: string
 	readonly rooms: string[]
-	send(data: CommonSendData): void
+	send(data: OutgoingData): void
 	on<K extends keyof SocketEventMap>(
 		event: K,
 		callback: SocketEventMap[K],

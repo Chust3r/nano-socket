@@ -1,14 +1,14 @@
 import type { WebSocket } from 'ws'
-import { CommonClientEmitter } from '~core/common-emitter'
-import type {
-	CommonSendData,
-	CommonWebSocket,
+import { WebSocketAdapter } from '~core/adapter'
+import {
+	type OutgoingData,
+	type SocketAdapter,
 	WebSocketReadyState,
 } from '~types'
 
 export class NodeClientAdapter
-	extends CommonClientEmitter
-	implements CommonWebSocket
+	extends WebSocketAdapter
+	implements SocketAdapter
 {
 	private ws: WebSocket
 
@@ -25,12 +25,15 @@ export class NodeClientAdapter
 	}
 
 	close(code?: number, reason?: string): void {
+		if (this.isClosed) return
+
+		this.isClosed = true
 		this.ws.close(code, reason)
 		this.emit('close', code, reason)
 	}
 
-	send(data: CommonSendData): void {
-		this.ws.send(data)
+	send(data: OutgoingData): void {
+		if (this.readyState === WebSocketReadyState.OPEN) this.ws.send(data)
 	}
 
 	terminate(): void {

@@ -4,11 +4,7 @@ import { SocketClient } from '~core/client'
 import { Server } from '~core/server'
 import { adaptToHttpServer } from '~lib/adapter'
 import { getNodeRequest } from '~lib/request'
-import type {
-	CommonWebSocket,
-	NodeServerCompatible,
-	ServerOptions,
-} from '~types'
+import type { NodeServerCompatible, ServerOptions, SocketAdapter } from '~types'
 import { NodeClientAdapter } from './socket'
 
 interface InternalServerOptions {
@@ -81,7 +77,7 @@ class NodeServerServer extends Server {
 		})
 	}
 
-	private handleConnection(ws: CommonWebSocket, req: IncomingMessage): void {
+	private handleConnection(ws: SocketAdapter, req: IncomingMessage): void {
 		const basePath = this.options.path || '/'
 		if (req.url && !req.url.startsWith(basePath)) {
 			ws.terminate()

@@ -5,10 +5,10 @@ import type { Parser } from '~core/parser'
 import { ClientEventsManager } from '~managers/client-events'
 import type { ClientsConnectedManager } from '~managers/clients-connected'
 import type {
-	CommonRecivedData,
-	CommonSendData,
-	CommonWebSocket,
+	IncomingData,
+	OutgoingData,
 	Socket,
+	SocketAdapter,
 	SocketEventMap,
 	SocketFluent,
 	SocketRequest,
@@ -16,7 +16,7 @@ import type {
 import { WebSocketReadyState } from '~types'
 
 interface SocketClientProps {
-	ws: CommonWebSocket
+	ws: SocketAdapter
 	parser: Parser
 	clients: ClientsConnectedManager
 	roomManager: RoomManager
@@ -25,7 +25,7 @@ interface SocketClientProps {
 
 export class SocketClient implements Socket {
 	private _id: string
-	private ws: CommonWebSocket
+	private ws: SocketAdapter
 	private parser: Parser
 	private clients: ClientsConnectedManager
 	private roomManager: RoomManager
@@ -35,7 +35,6 @@ export class SocketClient implements Socket {
 	private isBroadcast = false
 	public data = new Map<string, any>()
 	private req: SocketRequest
-	private isClosed = false
 
 	constructor({
 		ws,
@@ -56,15 +55,12 @@ export class SocketClient implements Socket {
 		this.ws.on('close', this.handleClose)
 	}
 
-	private handleMessage = (data: CommonRecivedData): void => {
+	private handleMessage = (data: IncomingData): void => {
 		const { event, args } = this.parser.deserialize(data)
 		this.eventManager.emit(event, ...args)
 	}
 
 	private handleClose = (): void => {
-		if (this.isClosed) return
-		this.isClosed = true
-
 		this.clients.remove(this._id)
 		this.roomManager.remove(this._id)
 		this.eventManager.emit('disconnect', 1000, 'Socket Closed')
@@ -120,7 +116,7 @@ export class SocketClient implements Socket {
 		this.eventManager.on(event, cb)
 	}
 
-	send(data: CommonSendData): void {
+	send(data: OutgoingData): void {
 		if (this.ws.readyState === WebSocketReadyState.OPEN) {
 			this.ws.send(data)
 		}

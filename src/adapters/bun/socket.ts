@@ -1,18 +1,14 @@
 import type { ServerWebSocket } from 'bun'
-import { CommonClientEmitter } from '~core/common-emitter'
-import type {
-	CommonSendData,
-	CommonWebSocket,
-	WebSocketReadyState,
-} from '~types'
+import { WebSocketAdapter } from '~core/adapter'
+import type { OutgoingData, SocketAdapter, WebSocketReadyState } from '~types'
 
 type WebSocketData = {
 	adapter?: BunClientAdapter
 }
 
 export class BunClientAdapter
-	extends CommonClientEmitter
-	implements CommonWebSocket
+	extends WebSocketAdapter
+	implements SocketAdapter
 {
 	private ws: ServerWebSocket<WebSocketData>
 
@@ -31,7 +27,7 @@ export class BunClientAdapter
 		this.emit('close', code, reason)
 	}
 
-	send(data: CommonSendData): void {
+	send(data: OutgoingData): void {
 		this.ws.send(data)
 	}
 

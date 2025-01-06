@@ -1,7 +1,7 @@
-import type { CommonRecivedData } from '~types'
+import type { IncomingData } from '~types'
 
 export class Parser {
-	deserialize(data: CommonRecivedData) {
+	deserialize(data: IncomingData) {
 		const stringData = this.convertToString(data)
 		const parsed = this.toJSON(stringData)
 
@@ -38,7 +38,7 @@ export class Parser {
 		}
 	}
 
-	private convertToString(data: CommonRecivedData): string {
+	private convertToString(data: IncomingData): string {
 		if (typeof data === 'string') {
 			return data
 		}
