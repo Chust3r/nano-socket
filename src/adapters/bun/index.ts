@@ -1,14 +1,14 @@
 import type { Server as BunServer, ServerWebSocket } from 'bun'
-import { SocketClient } from '~core/client'
-import { Server } from '~core/server'
-import { getBunRequest } from '~lib/request'
 import type {
 	ExtendedError,
 	IncomingData,
 	ServerOptions,
 	SocketAdapter,
 	SocketRequest,
-} from '~types'
+} from 'types'
+import { SocketClient } from '~core/client'
+import { ServerBase } from '~core/server'
+import { getBunRequest } from '~lib/request'
 import { BunClientAdapter } from './socket'
 
 type WebSocketData = {
@@ -22,7 +22,7 @@ interface InternalServerOptions {
 	path: string
 }
 
-export class BunServerServer extends Server {
+export class Server extends ServerBase {
 	private options: Partial<InternalServerOptions> = {}
 
 	constructor(srv: number, opts?: Partial<ServerOptions>)
@@ -154,4 +154,4 @@ export class BunServerServer extends Server {
 	}
 }
 
-export { BunServerServer as Server }
+export default Server

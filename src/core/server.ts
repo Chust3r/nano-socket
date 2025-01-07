@@ -8,14 +8,14 @@ import type {
 	ServerEventMap,
 } from '~types'
 
-export class Server implements CommonServer {
+export class ServerBase implements CommonServer {
 	protected parser: Parser
 	protected namespaceManager: NamespaceManager
 	protected currentNamespace: Namespace
 
 	constructor() {
 		this.parser = new Parser()
-		this.namespaceManager = new NamespaceManager()
+		this.namespaceManager = new NamespaceManager(this.parser)
 		this.currentNamespace = this.namespaceManager.getOrCreate('/')
 	}
 

@@ -1,83 +1,86 @@
 import type { IncomingMessage } from 'node:http'
 import { WebSocketServer } from 'ws'
 import { SocketClient } from '~core/client'
-import { Server } from '~core/server'
+import { ServerBase } from '~core/server'
 import { adaptToHttpServer } from '~lib/adapter'
-import { getNodeRequest } from '~lib/request'
 import type { NodeServerCompatible, ServerOptions, SocketAdapter } from '~types'
+import { getRequest } from './request'
 import { NodeClientAdapter } from './socket'
 
-interface InternalServerOptions {
-	port: number
-	path: string
-	server: NodeServerCompatible
-	noServer: boolean
+export type NodeServerOptions = ServerOptions & {
+	server?: NodeServerCompatible
 }
 
-class NodeServerServer extends Server {
+export class Server extends ServerBase {
 	private server?: WebSocketServer
-	private options: Partial<InternalServerOptions> = {}
+	private options: NodeServerOptions
 
-	constructor(opts?: Partial<ServerOptions>)
-	constructor(srv: number, opts?: Partial<ServerOptions>)
-	constructor(srv: NodeServerCompatible, opts?: Partial<ServerOptions>)
-	constructor(
-		srv?: NodeServerCompatible | number | Partial<ServerOptions>,
-		opts?: Partial<ServerOptions>,
-	) {
+	constructor(options: NodeServerOptions) {
 		super()
+		this.options = this.validateAndNormalizeOptions(options)
 
-		if (!srv) {
-			this.options.noServer = true
-			this.options = { ...this.options, ...opts }
-		} else if (typeof srv === 'number') {
-			this.options.port = srv
-			this.options = { ...this.options, ...opts }
-		} else if (srv && typeof srv === 'object' && 'listen' in srv) {
-			this.options.server = srv as NodeServerCompatible
-			this.options = { ...this.options, ...opts }
-		} else if (srv && typeof srv === 'object') {
-			this.options.noServer = true
-			this.options = { ...this.options, ...srv }
-		}
+		console.log(this.options)
 
-		if (this.options.port && this.options.server) {
-			throw new Error('Cannot specify both a port and a server.')
-		}
-		if (!this.options.port && !this.options.server && !this.options.noServer) {
+		this.server = this.initializeServer()
+		this.attachConnectionHandler()
+	}
+
+	private validateAndNormalizeOptions = (
+		options: NodeServerOptions,
+	): NodeServerOptions => {
+		const { port, server, noServer, path } = options
+		const definedOptions = [
+			port !== undefined,
+			server !== undefined,
+			noServer === true,
+		]
+
+		if (definedOptions.filter(Boolean).length !== 1) {
 			throw new Error(
-				'Invalid configuration: Provide a port, server, or noServer option.',
+				'Invalid configuration: Provide exactly one of `port`, `server`, or `noServer`.',
 			)
 		}
 
-		const { noServer, port, server, path = '/', ...options } = this.options
-		if (this.options.noServer) {
-			this.server = new WebSocketServer({
-				noServer: true,
-				...options,
-			})
-		} else if (this.options.port) {
-			this.server = new WebSocketServer({
-				port: this.options.port,
-				...options,
-			})
-		} else if (this.options.server) {
-			const adaptedServer = adaptToHttpServer(this.options.server)
-			this.server = new WebSocketServer({
-				server: adaptedServer,
-				...options,
-			})
-		} else {
-			throw new Error('Invalid server configuration.')
+		if (path && !path.startsWith('/')) {
+			throw new Error('Invalid path: Path must start with `/`.')
 		}
 
-		this.server.on('connection', (socket, req) => {
+		return {
+			path: path || '/',
+			port,
+			server,
+			noServer,
+		}
+	}
+
+	private initializeServer = (): WebSocketServer => {
+		if (this.options.noServer) {
+			return new WebSocketServer({ noServer: true })
+		}
+
+		if (this.options.port) {
+			return new WebSocketServer({ port: this.options.port })
+		}
+
+		if (this.options.server) {
+			const adaptedServer = adaptToHttpServer(this.options.server)
+			return new WebSocketServer({ server: adaptedServer })
+		}
+
+		throw new Error('Invalid server configuration.')
+	}
+
+	private attachConnectionHandler = (): void => {
+		this.server?.on('connection', (socket, req) => {
 			const ws = new NodeClientAdapter(socket)
 			this.handleConnection(ws, req)
 		})
 	}
 
-	private handleConnection(ws: SocketAdapter, req: IncomingMessage): void {
+	private handleConnection = (
+		ws: SocketAdapter,
+		req: IncomingMessage,
+	): void => {
 		const basePath = this.options.path || '/'
 		if (req.url && !req.url.startsWith(basePath)) {
 			ws.terminate()
@@ -96,7 +99,7 @@ class NodeServerServer extends Server {
 			parser: this.parser,
 			clients: namespace.clientManager,
 			roomManager: namespace.roomManager,
-			request: getNodeRequest(req),
+			request: getRequest(req),
 		})
 
 		namespace.middlewareManager.run(socket, (err) => {
@@ -109,7 +112,7 @@ class NodeServerServer extends Server {
 		})
 	}
 
-	handleUpgrade(req: IncomingMessage, socket: any, head: Buffer): void {
+	handleUpgrade = (req: IncomingMessage, socket: any, head: Buffer): void => {
 		const basePath = this.options.path || '/'
 		if (req.url && !req.url.startsWith(basePath)) {
 			socket.destroy()
@@ -123,10 +126,10 @@ class NodeServerServer extends Server {
 			})
 		} else {
 			throw new Error(
-				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server without specifying a port or HTTP server directly. Pass only the configuration object (e.g. { path: 'yourPath' }) to activate the "noServer" option.`,
+				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server with the 'noServer' option.`,
 			)
 		}
 	}
 }
 
-export { NodeServerServer as Server }
+export default Server

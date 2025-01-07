@@ -16,7 +16,7 @@
 			"~core/*": ["core/*"],
 			"~managers/*": ["core/managers/*"],
 			"~lib/*": ["lib/*"],
-			"~types": ["lib/types.ts"]
+			"~types": ["types.ts"]
 		}
 	},
 	"include": ["src/**/*"],

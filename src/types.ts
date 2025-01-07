@@ -95,7 +95,7 @@ export interface Fluent {
 }
 
 export interface SocketRequest {
-	headers: Headers
+	headers: ReadonlyMap<string, string>
 	url: string
 	query: ReadonlyMap<string, string>
 	path: string
@@ -129,10 +129,6 @@ export interface Namespace {
 	exclude(...ids: string[]): Fluent
 }
 
-export interface ServerOptions {
-	path?: string
-}
-
 export type NodeServerCompatible =
 	| HTTPServer
 	| HTTPSServer
@@ -140,3 +136,9 @@ export type NodeServerCompatible =
 	| Http2Server
 
 export { HTTPServer, HTTPSServer }
+
+export interface ServerOptions {
+	path?: string
+	port?: number
+	noServer?: boolean
+}

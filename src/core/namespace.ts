@@ -1,4 +1,4 @@
-import { Parser } from '~core/parser'
+import type { Parser } from '~core/parser'
 import { ServerFluent } from '~core/server-fluent'
 import { ClientsConnectedManager } from '~managers/clients-connected'
 import { MiddlewareManager } from '~managers/middlewares'
@@ -12,16 +12,14 @@ import type {
 } from '~types'
 
 export class Namespace implements Nam {
-	protected parser: Parser
 	public roomManager: RoomManager
 	public eventManager: ServerEventsManager
 	public clientManager: ClientsConnectedManager
 	public middlewareManager: MiddlewareManager
 	protected fluent: Fluent
 
-	constructor() {
+	constructor(protected parser: Parser) {
 		this.eventManager = new ServerEventsManager()
-		this.parser = new Parser()
 		this.clientManager = new ClientsConnectedManager()
 		this.roomManager = new RoomManager()
 		this.middlewareManager = new MiddlewareManager()

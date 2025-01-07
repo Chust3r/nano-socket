@@ -1,4 +1,4 @@
-import type { ExtendedError, Middleware, Socket } from '~lib/types'
+import type { ExtendedError, Middleware, Socket } from '~types'
 
 interface MiddlewareManagerOptions {
 	timeout?: number
