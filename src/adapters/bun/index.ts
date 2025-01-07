@@ -1,14 +1,14 @@
 import type { Server as BunServer, ServerWebSocket } from 'bun'
+import { SocketClient } from '~core/client'
+import { ServerBase } from '~core/server'
+import { getRequest } from './request'
 import type {
 	ExtendedError,
 	IncomingData,
 	ServerOptions,
 	SocketAdapter,
 	SocketRequest,
-} from 'types'
-import { SocketClient } from '~core/client'
-import { ServerBase } from '~core/server'
-import { getBunRequest } from '~lib/request'
+} from '~types'
 import { BunClientAdapter } from './socket'
 
 type WebSocketData = {
@@ -17,83 +17,78 @@ type WebSocketData = {
 	server: BunServer
 }
 
-interface InternalServerOptions {
-	port: number
-	path: string
-}
+type BunServerOptions = ServerOptions
 
 export class Server extends ServerBase {
-	private options: Partial<InternalServerOptions> = {}
+	private options: BunServerOptions
+	private isServerCreated = false
 
-	constructor(srv: number, opts?: Partial<ServerOptions>)
-	constructor(srv?: Partial<ServerOptions>, opts?: never)
-	constructor(
-		srv?: number | Partial<ServerOptions>,
-		opts?: Partial<ServerOptions>,
-	) {
+	constructor(options: BunServerOptions) {
 		super()
 
-		if (typeof srv === 'number') {
-			this.options = { ...opts, path: opts?.path }
-			this.options.port = srv
+		this.options = this.validateAndNormalizeOptions(options)
 
+		if (!this.options.noServer) {
 			Bun.serve<WebSocketData>({
-				fetch: (request: Request, server: BunServer) => {
-					if (request.headers.get('upgrade') === 'websocket') {
-						return this.handleUpgrade(request, server)
-					}
-					return undefined
-				},
-				websocket: this.websocket,
-				port: this.options.port ?? 3000,
-			})
-		} else if (srv instanceof Object && !Array.isArray(srv) && !opts) {
-			this.options = srv as ServerOptions
-		} else if (srv instanceof Object && opts) {
-			throw new Error('Invalid Server Options')
-		} else {
-			Bun.serve<WebSocketData>({
-				fetch: (request: Request, server: BunServer) => {
-					if (request.headers.get('upgrade') === 'websocket') {
-						return this.handleUpgrade(request, server)
-					}
-					return undefined
-				},
+				fetch: (request: Request, server: BunServer) =>
+					request.headers.get('upgrade') === 'websocket'
+						? this.handleUpgrade(request, server)
+						: undefined,
 				websocket: this.websocket,
 				port: this.options.port,
 			})
+			this.isServerCreated = true
 		}
 	}
 
-	private open(ws: ServerWebSocket<WebSocketData>) {
+	private validateAndNormalizeOptions = (
+		options: BunServerOptions
+	): BunServerOptions => {
+		const { port, noServer } = options
+		const definedOptions = [port !== undefined, noServer === true]
+
+		if (definedOptions.filter(Boolean).length !== 1) {
+			throw new Error(
+				'Invalid configuration: Provide exactly one of `port` or `noServer`.'
+			)
+		}
+
+		if (port && port <= 0) {
+			throw new Error('Invalid port: Port must be a positive number.')
+		}
+
+		return options
+	}
+
+	private open = (ws: ServerWebSocket<WebSocketData>) => {
 		const bunWS = new BunClientAdapter(ws)
 		ws.data.adapter = bunWS
-		const req = getBunRequest(ws.data.req, ws.data.server)
+		const req = getRequest(ws.data.req, ws.data.server)
 		this.handleConnection(bunWS, req)
 	}
 
-	private message(
+	private message = (
 		ws: ServerWebSocket<WebSocketData>,
-		message: IncomingData,
-	): void {
+		message: IncomingData
+	): void => {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
 			bunWS.emit('message', message)
 		}
 	}
 
-	private close(
+	private close = (
 		ws: ServerWebSocket<WebSocketData>,
 		code: number,
-		reason: string,
-	): void {
+		reason: string
+	): void => {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
 			bunWS.emit('close', code, reason)
 		}
 	}
 
-	private handleConnection(ws: SocketAdapter, req: SocketRequest): void {
+	private handleConnection = (ws: SocketAdapter, req: SocketRequest): void => {
 		const basePath = this.options.path || '/'
 
 		if (req.path && !req.path.startsWith(basePath)) {
@@ -134,24 +129,28 @@ export class Server extends ServerBase {
 			close: (
 				ws: ServerWebSocket<WebSocketData>,
 				code: number,
-				reason: string,
+				reason: string
 			) => this.close(ws, code, reason),
 		}
 	}
 
-	handleUpgrade(request: Request, server: BunServer): void {
-		const basePath = this.options.path || '/'
-		const url = new URL(request.url)
-		const path = url.pathname
-		if (!path.startsWith(basePath)) return
+	handleUpgrade = (request: Request, server: BunServer): void => {
+		if (!this.isServerCreated) {
+			const basePath = this.options.path || '/'
+			const url = new URL(request.url)
+			const path = url.pathname
+			if (!path.startsWith(basePath)) return
 
-		server.upgrade(request, {
-			data: {
-				req: request,
-				server,
-			} as WebSocketData,
-		})
+			server.upgrade(request, {
+				data: {
+					req: request,
+					server,
+				} as WebSocketData,
+			})
+		}
 	}
 }
 
 export default Server
+
+export type { BunServerOptions as ServerOptions }

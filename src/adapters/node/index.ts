@@ -7,7 +7,7 @@ import type { NodeServerCompatible, ServerOptions, SocketAdapter } from '~types'
 import { getRequest } from './request'
 import { NodeClientAdapter } from './socket'
 
-export type NodeServerOptions = ServerOptions & {
+type NodeServerOptions = ServerOptions & {
 	server?: NodeServerCompatible
 }
 
@@ -18,15 +18,12 @@ export class Server extends ServerBase {
 	constructor(options: NodeServerOptions) {
 		super()
 		this.options = this.validateAndNormalizeOptions(options)
-
-		console.log(this.options)
-
 		this.server = this.initializeServer()
 		this.attachConnectionHandler()
 	}
 
 	private validateAndNormalizeOptions = (
-		options: NodeServerOptions,
+		options: NodeServerOptions
 	): NodeServerOptions => {
 		const { port, server, noServer, path } = options
 		const definedOptions = [
@@ -37,7 +34,7 @@ export class Server extends ServerBase {
 
 		if (definedOptions.filter(Boolean).length !== 1) {
 			throw new Error(
-				'Invalid configuration: Provide exactly one of `port`, `server`, or `noServer`.',
+				'Invalid configuration: Provide exactly one of `port`, `server`, or `noServer`.'
 			)
 		}
 
@@ -79,7 +76,7 @@ export class Server extends ServerBase {
 
 	private handleConnection = (
 		ws: SocketAdapter,
-		req: IncomingMessage,
+		req: IncomingMessage
 	): void => {
 		const basePath = this.options.path || '/'
 		if (req.url && !req.url.startsWith(basePath)) {
@@ -126,10 +123,12 @@ export class Server extends ServerBase {
 			})
 		} else {
 			throw new Error(
-				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server with the 'noServer' option.`,
+				`WebSocket upgrade failed: To use the 'handleUpgrade' method, you must initialize the server with the 'noServer' option.`
 			)
 		}
 	}
 }
 
 export default Server
+
+export type { NodeServerOptions as ServerOptions }
