@@ -25,9 +25,7 @@ export class Namespace implements Nam {
 		this.eventManager = new ServerEventsManager()
 		this.clientManager = new ClientsConnectedManager()
 		this.roomManager = new RoomManager()
-		this.middlewareManager = new MiddlewareManager({
-			timeout: middlewareTimeout,
-		})
+		this.middlewareManager = new MiddlewareManager(middlewareTimeout)
 		this.fluent = new ServerFluent({
 			parser: this.parser,
 			clients: this.clientManager,

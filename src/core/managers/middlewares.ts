@@ -30,7 +30,7 @@ export class MiddlewareManager {
 
 			const socketContext: SocketContext = createSocketContextProxy(socket)
 
-			middleware(socketContext, (err?: ExtendedError) => {
+			middleware(socketContext, async (err?: ExtendedError) => {
 				if (isNextCalled) return
 				isNextCalled = true
 				clearTimeout(timer)
@@ -41,7 +41,7 @@ export class MiddlewareManager {
 					return done(err)
 				}
 
-				runMiddleware(index + 1)
+				await runMiddleware(index + 1)
 			})
 		}
 
