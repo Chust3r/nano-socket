@@ -1,6 +1,6 @@
-import type { SocketRequest } from '~types'
 import type { Server } from 'bun'
 import { getAuth, getCookies, getPath, getQueryParams } from '~lib/request'
+import type { SocketRequest } from '~types'
 
 export const getRequest = (req: Request, server: Server): SocketRequest => {
 	const headers = new Map()

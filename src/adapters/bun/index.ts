@@ -1,7 +1,6 @@
 import type { Server as BunServer, ServerWebSocket } from 'bun'
 import { SocketClient } from '~core/client'
 import { ServerBase } from '~core/server'
-import { getRequest } from './request'
 import type {
 	ExtendedError,
 	IncomingData,
@@ -9,6 +8,7 @@ import type {
 	SocketAdapter,
 	SocketRequest,
 } from '~types'
+import { getRequest } from './request'
 import { BunClientAdapter } from './socket'
 
 type WebSocketData = {
@@ -47,42 +47,32 @@ export class Server extends ServerBase {
 	}
 
 	private validateAndNormalizeOptions = (
-		options: BunServerOptions
+		options: BunServerOptions,
 	): BunServerOptions => {
 		const { port, noServer, fetch } = options
-		const definedOptions = [
-			port !== undefined,
-			noServer === true,
-			fetch !== undefined,
-		]
 
-		// Si se pasa `fetch`, no puede estar `noServer` en `true`
 		if (fetch && noServer) {
 			throw new Error(
-				'Invalid configuration: Cannot provide both `fetch` and `noServer`.'
+				'Invalid configuration: Cannot provide both `fetch` and `noServer`.',
 			)
 		}
 
-		// Si se pasa `noServer`, no puede proporcionarse ni `port` ni `fetch`
 		if (noServer && (port || fetch)) {
 			throw new Error(
-				'Invalid configuration: Cannot provide `port` or `fetch` when `noServer` is true.'
+				'Invalid configuration: Cannot provide `port` or `fetch` when `noServer` is true.',
 			)
 		}
 
-		// Si se pasa `fetch`, se asigna el puerto por defecto (3000) si no se pasa uno
 		if (fetch && !port) {
 			options.port = 3000
 		}
 
-		// Si no se pasa `noServer`, se requiere un `port` (a menos que `fetch` esté presente)
 		if (!noServer && !port && !fetch) {
 			throw new Error(
-				'Invalid configuration: A `port` must be provided if `noServer` is false and `fetch` is not provided.'
+				'Invalid configuration: A `port` must be provided if `noServer` is false and `fetch` is not provided.',
 			)
 		}
 
-		// Si el puerto es menor o igual a 0, es inválido
 		if (port && port <= 0) {
 			throw new Error('Invalid port: Port must be a positive number.')
 		}
@@ -99,7 +89,7 @@ export class Server extends ServerBase {
 
 	private message = (
 		ws: ServerWebSocket<WebSocketData>,
-		message: IncomingData
+		message: IncomingData,
 	): void => {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
@@ -110,7 +100,7 @@ export class Server extends ServerBase {
 	private close = (
 		ws: ServerWebSocket<WebSocketData>,
 		code: number,
-		reason: string
+		reason: string,
 	): void => {
 		const bunWS = ws.data.adapter
 		if (bunWS) {
@@ -159,7 +149,7 @@ export class Server extends ServerBase {
 			close: (
 				ws: ServerWebSocket<WebSocketData>,
 				code: number,
-				reason: string
+				reason: string,
 			) => this.close(ws, code, reason),
 		}
 	}
