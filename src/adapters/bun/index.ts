@@ -17,11 +17,12 @@ type WebSocketData = {
 	server: BunServer
 }
 
-type BunServerOptions = ServerOptions
+export type BunServerOptions = ServerOptions & {
+	fetch?: (req: Request) => void
+}
 
 export class Server extends ServerBase {
 	private options: BunServerOptions
-	private isServerCreated = false
 
 	constructor(options: BunServerOptions) {
 		super()
@@ -30,29 +31,58 @@ export class Server extends ServerBase {
 
 		if (!this.options.noServer) {
 			Bun.serve<WebSocketData>({
-				fetch: (request: Request, server: BunServer) =>
-					request.headers.get('upgrade') === 'websocket'
-						? this.handleUpgrade(request, server)
-						: undefined,
+				fetch: (request: Request, server: BunServer) => {
+					if (request.headers.get('upgrade') === 'websocket') {
+						return this.handleUpgrade(request, server)
+					}
+
+					if (this.options.fetch) {
+						return this.options.fetch(request)
+					}
+				},
 				websocket: this.websocket,
 				port: this.options.port,
 			})
-			this.isServerCreated = true
 		}
 	}
 
 	private validateAndNormalizeOptions = (
 		options: BunServerOptions
 	): BunServerOptions => {
-		const { port, noServer } = options
-		const definedOptions = [port !== undefined, noServer === true]
+		const { port, noServer, fetch } = options
+		const definedOptions = [
+			port !== undefined,
+			noServer === true,
+			fetch !== undefined,
+		]
 
-		if (definedOptions.filter(Boolean).length !== 1) {
+		// Si se pasa `fetch`, no puede estar `noServer` en `true`
+		if (fetch && noServer) {
 			throw new Error(
-				'Invalid configuration: Provide exactly one of `port` or `noServer`.'
+				'Invalid configuration: Cannot provide both `fetch` and `noServer`.'
 			)
 		}
 
+		// Si se pasa `noServer`, no puede proporcionarse ni `port` ni `fetch`
+		if (noServer && (port || fetch)) {
+			throw new Error(
+				'Invalid configuration: Cannot provide `port` or `fetch` when `noServer` is true.'
+			)
+		}
+
+		// Si se pasa `fetch`, se asigna el puerto por defecto (3000) si no se pasa uno
+		if (fetch && !port) {
+			options.port = 3000
+		}
+
+		// Si no se pasa `noServer`, se requiere un `port` (a menos que `fetch` esté presente)
+		if (!noServer && !port && !fetch) {
+			throw new Error(
+				'Invalid configuration: A `port` must be provided if `noServer` is false and `fetch` is not provided.'
+			)
+		}
+
+		// Si el puerto es menor o igual a 0, es inválido
 		if (port && port <= 0) {
 			throw new Error('Invalid port: Port must be a positive number.')
 		}
@@ -135,22 +165,18 @@ export class Server extends ServerBase {
 	}
 
 	handleUpgrade = (request: Request, server: BunServer): void => {
-		if (!this.isServerCreated) {
-			const basePath = this.options.path || '/'
-			const url = new URL(request.url)
-			const path = url.pathname
-			if (!path.startsWith(basePath)) return
+		const basePath = this.options.path || '/'
+		const url = new URL(request.url)
+		const path = url.pathname
+		if (!path.startsWith(basePath)) return
 
-			server.upgrade(request, {
-				data: {
-					req: request,
-					server,
-				} as WebSocketData,
-			})
-		}
+		server.upgrade(request, {
+			data: {
+				req: request,
+				server,
+			} as WebSocketData,
+		})
 	}
 }
 
 export default Server
-
-export type { BunServerOptions as ServerOptions }
