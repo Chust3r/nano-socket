@@ -3,28 +3,32 @@ import { adaptToHttpServer } from 'adapters/node/adapter'
 import { WebSocketServer } from 'ws'
 import { SocketClient } from '~core/client'
 import { ServerBase } from '~core/server'
-import type { NodeServerCompatible, ServerOptions, SocketAdapter } from '~types'
+import type {
+	NodeServerCompatible,
+	ServerOptions as SO,
+	SocketAdapter,
+} from '~types'
 import { getRequest } from './request'
 import { NodeClientAdapter } from './socket'
 
-type NodeServerOptions = ServerOptions & {
+export type ServerOptions = SO & {
 	server?: NodeServerCompatible
 }
 
 export class Server extends ServerBase {
 	private server?: WebSocketServer
-	private options: NodeServerOptions
+	private options: ServerOptions
 
-	constructor(options: NodeServerOptions) {
-		super()
+	constructor(options: ServerOptions) {
+		super(options.middlewareTimeout)
 		this.options = this.validateAndNormalizeOptions(options)
 		this.server = this.initializeServer()
 		this.attachConnectionHandler()
 	}
 
 	private validateAndNormalizeOptions = (
-		options: NodeServerOptions,
-	): NodeServerOptions => {
+		options: ServerOptions,
+	): ServerOptions => {
 		const { port, server, noServer, path } = options
 		const definedOptions = [
 			port !== undefined,
@@ -130,5 +134,3 @@ export class Server extends ServerBase {
 }
 
 export default Server
-
-export type { NodeServerOptions as ServerOptions }

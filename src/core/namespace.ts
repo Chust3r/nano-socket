@@ -18,11 +18,16 @@ export class Namespace implements Nam {
 	public middlewareManager: MiddlewareManager
 	protected fluent: Fluent
 
-	constructor(protected parser: Parser) {
+	constructor(
+		protected parser: Parser,
+		middlewareTimeout?: number,
+	) {
 		this.eventManager = new ServerEventsManager()
 		this.clientManager = new ClientsConnectedManager()
 		this.roomManager = new RoomManager()
-		this.middlewareManager = new MiddlewareManager()
+		this.middlewareManager = new MiddlewareManager({
+			timeout: middlewareTimeout,
+		})
 		this.fluent = new ServerFluent({
 			parser: this.parser,
 			clients: this.clientManager,

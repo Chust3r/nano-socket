@@ -1,21 +1,21 @@
-import { NamespaceManager } from '~core/managers/namespaces'
-import { Parser } from '~core/parser'
 import type {
 	Server as CommonServer,
 	Fluent,
 	Middleware,
 	Namespace,
 	ServerEventMap,
-} from '~types'
+} from 'types'
+import { NamespaceManager } from '~core/managers/namespaces'
+import { Parser } from '~core/parser'
 
 export class ServerBase implements CommonServer {
 	protected parser: Parser
 	protected namespaceManager: NamespaceManager
 	protected currentNamespace: Namespace
 
-	constructor() {
+	constructor(middlewareTimeout?: number) {
 		this.parser = new Parser()
-		this.namespaceManager = new NamespaceManager(this.parser)
+		this.namespaceManager = new NamespaceManager(this.parser, middlewareTimeout)
 		this.currentNamespace = this.namespaceManager.getOrCreate('/')
 	}
 

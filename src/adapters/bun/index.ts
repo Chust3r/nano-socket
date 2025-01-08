@@ -4,7 +4,7 @@ import { ServerBase } from '~core/server'
 import type {
 	ExtendedError,
 	IncomingData,
-	ServerOptions,
+	ServerOptions as SO,
 	SocketAdapter,
 	SocketRequest,
 } from '~types'
@@ -17,15 +17,15 @@ type WebSocketData = {
 	server: BunServer
 }
 
-export type BunServerOptions = ServerOptions & {
+export type ServerOptions = SO & {
 	fetch?: (req: Request) => void
 }
 
 export class Server extends ServerBase {
-	private options: BunServerOptions
+	private options: ServerOptions
 
-	constructor(options: BunServerOptions) {
-		super()
+	constructor(options: ServerOptions) {
+		super(options.middlewareTimeout)
 
 		this.options = this.validateAndNormalizeOptions(options)
 
@@ -47,8 +47,8 @@ export class Server extends ServerBase {
 	}
 
 	private validateAndNormalizeOptions = (
-		options: BunServerOptions,
-	): BunServerOptions => {
+		options: ServerOptions,
+	): ServerOptions => {
 		const { port, noServer, fetch } = options
 
 		if (fetch && noServer) {

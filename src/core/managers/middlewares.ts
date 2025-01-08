@@ -1,16 +1,10 @@
-import type { ExtendedError, Middleware, Socket } from '~types'
-
-interface MiddlewareManagerOptions {
-	timeout?: number
-}
+import type { ExtendedError, Middleware, Socket, SocketContext } from 'types'
+import { createSocketContextProxy } from '~lib/proxys'
 
 export class MiddlewareManager {
 	private middlewares: Middleware[] = []
-	private defaultTimeout: number
 
-	constructor({ timeout = 5000 }: MiddlewareManagerOptions = {}) {
-		this.defaultTimeout = timeout
-	}
+	constructor(private defaultTimeout = 5000) {}
 
 	use(middleware: Middleware): void {
 		this.middlewares.push(middleware)
@@ -26,19 +20,24 @@ export class MiddlewareManager {
 			const timer = setTimeout(() => {
 				if (!isNextCalled) {
 					socket.close()
-					const msg = `Middleware timeout: ${this.defaultTimeout}ms exceeded`
-					done(new Error(msg))
+					done(
+						new Error(`Middleware timeout: ${this.defaultTimeout}ms exceeded`),
+					)
 				}
 			}, this.defaultTimeout)
 
 			const middleware = this.middlewares[index]
 
-			middleware(socket, (err?: ExtendedError) => {
+			const socketContext: SocketContext = createSocketContextProxy(socket)
+
+			middleware(socketContext, (err?: ExtendedError) => {
 				if (isNextCalled) return
 				isNextCalled = true
 				clearTimeout(timer)
 
 				if (err) {
+					socket.emit('error', err.message)
+					socket.close()
 					return done(err)
 				}
 

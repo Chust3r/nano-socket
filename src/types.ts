@@ -83,8 +83,14 @@ export interface SocketFluent {
 	emit(event: string, ...args: any[]): void
 }
 
+export interface SocketContext {
+	readonly id: string
+	data: Map<string, any>
+	request: SocketRequest
+}
+
 export type Middleware = (
-	socket: Socket,
+	context: SocketContext,
 	next: (err?: ExtendedError) => void,
 ) => void | Promise<void>
 
@@ -141,4 +147,5 @@ export interface ServerOptions {
 	path?: string
 	port?: number
 	noServer?: boolean
+	middlewareTimeout?: number
 }
