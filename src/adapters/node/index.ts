@@ -105,7 +105,7 @@ export class Server extends ServerBase {
 
 		namespace.middlewareManager.run(socket, (err) => {
 			if (err) {
-				socket.terminate()
+				socket.close()
 				return
 			}
 			namespace.clientManager.add(socket)

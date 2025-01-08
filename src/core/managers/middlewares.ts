@@ -17,32 +17,50 @@ export class MiddlewareManager {
 			}
 
 			let isNextCalled = false
+			let isTimeoutExceeded = false
+
 			const timer = setTimeout(() => {
 				if (!isNextCalled) {
-					socket.close()
-					done(
-						new Error(`Middleware timeout: ${this.defaultTimeout}ms exceeded`),
+					isTimeoutExceeded = true
+					const timeoutError = new Error(
+						`Middleware timeout: ${this.defaultTimeout}ms exceeded`,
 					)
+					done(timeoutError)
 				}
 			}, this.defaultTimeout)
 
 			const middleware = this.middlewares[index]
-
 			const socketContext: SocketContext = createSocketContextProxy(socket)
 
-			middleware(socketContext, async (err?: ExtendedError) => {
-				if (isNextCalled) return
+			const next = (err?: ExtendedError) => {
+				if (isNextCalled || isTimeoutExceeded) return
+
 				isNextCalled = true
 				clearTimeout(timer)
 
 				if (err) {
 					socket.emit('error', err.message)
-					socket.close()
 					return done(err)
 				}
 
-				await runMiddleware(index + 1)
-			})
+				runMiddleware(index + 1)
+			}
+
+			try {
+				const result = middleware(socketContext, next)
+
+				if (result instanceof Promise) {
+					result.then(() => next()).catch(next)
+				} else {
+					if (!isNextCalled) {
+						const error = new Error('Middleware did not call next()')
+						return done(error)
+					}
+					next()
+				}
+			} catch (err) {
+				next(err as ExtendedError)
+			}
 		}
 
 		runMiddleware(0)
