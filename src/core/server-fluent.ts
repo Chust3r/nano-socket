@@ -43,11 +43,11 @@ export class ServerFluent implements Fluent {
 		if (this.excludeRooms.size > 0) {
 			clients = clients.filter((client) => {
 				const clientRooms = this.roomManager.getMemberRooms(client)
-				const isInExcludedRoom = Array.from(this.excludeRooms).some((room) =>
-					clientRooms.includes(room),
+				const isInExcludedRoom = Array.from(this.excludeRooms).some(
+					(room) => clientRooms.includes(room)
 				)
 				const isInTargetRoom = Array.from(this.targetRooms).some((room) =>
-					clientRooms.includes(room),
+					clientRooms.includes(room)
 				)
 
 				return !(isInExcludedRoom && !isInTargetRoom)
@@ -58,10 +58,8 @@ export class ServerFluent implements Fluent {
 	}
 
 	emit = (event: string, ...args: any[]): void => {
-		const msg = this.parser.serialize(event, args)
+		const msg = this.parser.serialize(event, ...args)
 		const clients = this.getTargetClients()
-
-		console.log('clients', clients)
 
 		this.clients.sendToSpecificClients(msg, ...clients)
 	}
