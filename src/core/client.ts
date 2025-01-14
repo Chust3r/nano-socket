@@ -24,7 +24,7 @@ interface SocketClientProps {
 }
 
 export class SocketClient implements Socket {
-	private _id: string
+	private _id = nanoid()
 	private ws: SocketAdapter
 	private parser: Parser
 	private clients: ClientsConnectedManager
@@ -43,7 +43,6 @@ export class SocketClient implements Socket {
 		roomManager,
 		request,
 	}: SocketClientProps) {
-		this._id = nanoid()
 		this.ws = ws
 		this.parser = parser
 		this.clients = clients
@@ -66,12 +65,12 @@ export class SocketClient implements Socket {
 		this.eventManager.emit('disconnect', 1000, 'Socket Closed')
 	}
 
-	private clear(): void {
+	private clear = (): void => {
 		this.targetRooms.clear()
 		this.isBroadcast = false
 	}
 
-	private getClientsForEmit(): string[] {
+	private getClientsForEmit = (): string[] => {
 		let clients: string[] = []
 		const rooms = Array.from(this.targetRooms)
 
@@ -107,35 +106,35 @@ export class SocketClient implements Socket {
 		return this.req
 	}
 
-	on<K extends keyof SocketEventMap | string>(
+	on = <K extends keyof SocketEventMap | string>(
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
 			: (...args: any[]) => void | Promise<void>,
-	): void {
+	): void => {
 		this.eventManager.on(event, cb)
 	}
 
-	send(data: OutgoingData): void {
+	send = (data: OutgoingData): void => {
 		if (this.ws.readyState === WebSocketReadyState.OPEN) {
 			this.ws.send(data)
 		}
 	}
 
-	once<K extends keyof SocketEventMap | string>(
+	once = <K extends keyof SocketEventMap | string>(
 		event: K,
 		cb: K extends keyof SocketEventMap
 			? SocketEventMap[K]
 			: (...args: any[]) => void | Promise<void>,
-	): void {
+	): void => {
 		this.eventManager.once(event, cb)
 	}
 
-	onAny(cb: (event: string, ...args: any[]) => void): void {
+	onAny = (cb: (event: string, ...args: any[]) => void): void => {
 		this.eventManager.on('*', cb)
 	}
 
-	emit(event: string, ...args: any[]): void {
+	emit = (event: string, ...args: any[]): void => {
 		const data = this.parser.serialize(event, ...args)
 		const clients = this.getClientsForEmit()
 
@@ -150,33 +149,37 @@ export class SocketClient implements Socket {
 		}
 	}
 
-	close(): void {
+	close = (): void => {
 		this.ws.close()
 	}
 
-	terminate(): void {
+	terminate = (): void => {
 		this.ws.terminate()
 	}
 
-	setTargetRooms(...rooms: string[]) {
-		this.targetRooms = new Set([...this.targetRooms, ...rooms])
-	}
+	setTargetRooms = (...rooms: string[]): void => {
+		for (const room of rooms) {
+			this.targetRooms.add(room)
+		}
+	};
 
-	in(...rooms: string[]): boolean {
+	in = (...rooms: string[]): boolean => {
 		return this.roomManager.in(this._id, ...rooms)
 	}
 
-	join(...rooms: string[]): void {
+	join = (...rooms: string[]): void => {
 		for (const room of rooms) {
 			this.roomManager.add(room, this._id)
 		}
 	}
 
-	leave(...rooms: string[]): void {
-		this.roomManager.remove(this._id, ...rooms)
+	leave = (...rooms: string[]): void => {
+		for (const room of rooms) {
+			this.roomManager.remove(this._id, room)
+		}
 	}
 
-	to(...rooms: string[]) {
+	to = (...rooms: string[]): SocketFluent => {
 		for (const room of rooms) {
 			if (this.in(room)) {
 				this.join(room)

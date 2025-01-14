@@ -6,15 +6,13 @@ export class MiddlewareManager {
 
 	constructor(private defaultTimeout = 5000) {}
 
-	use(middleware: Middleware): void {
+	use = (middleware: Middleware): void => {
 		this.middlewares.push(middleware)
 	}
 
-	run(socket: Socket, done: (err?: ExtendedError) => void): void {
+	run = (socket: Socket, done: (err?: ExtendedError) => void): void => {
 		const runMiddleware = (index: number) => {
-			if (index >= this.middlewares.length) {
-				return done()
-			}
+			if (index >= this.middlewares.length) return done()
 
 			let isNextCalled = false
 			let isTimeoutExceeded = false

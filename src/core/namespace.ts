@@ -9,6 +9,7 @@ import type {
 	Middleware,
 	Namespace as Nam,
 	ServerEventMap,
+	Socket,
 } from '~types'
 
 export class Namespace implements Nam {
@@ -42,7 +43,7 @@ export class Namespace implements Nam {
 				this.roomManager
 					.getRoomMembers(room)
 					.map((id) => this.clientManager.get(id))
-					.filter((s) => s !== undefined),
+					.filter((client): client is Socket => client !== undefined),
 			move: (member: string, from: string, to: string) =>
 				this.roomManager.moveClientToRoom(member, from, to),
 			delete: (room: string) => this.roomManager.deleteRoom(room),
@@ -58,34 +59,30 @@ export class Namespace implements Nam {
 		return {
 			clients: this.clientManager.getAllClients(),
 			count: this.clientManager.getTotalClients(),
-			get: (id: string) => {
-				const client = this.clientManager.get(id)
-				return client
-			},
+			get: (id: string) => this.clientManager.get(id),
 			has: (id: string) => this.clientManager.has(id),
 			getExcluding: (...excludedIds: string[]) =>
 				this.clientManager.getClientsExcluding(...excludedIds),
 		}
 	}
 
-	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
+	on = <K extends keyof ServerEventMap>(
+		event: K,
+		cb: ServerEventMap[K],
+	): void => {
 		this.eventManager.on(event, cb)
 	}
 
-	use(middleware: Middleware): void {
+	use = (middleware: Middleware): void => {
 		this.middlewareManager.use(middleware)
 	}
 
-	emit(event: string, ...args: any[]): void {
+	emit = (event: string, ...args: any[]): void => {
 		const msg = this.parser.serialize(event, args)
 		this.clientManager.broadcast(msg)
 	}
 
-	to(...rooms: string[]): Fluent {
-		return this.fluent.to(...rooms)
-	}
+	to = (...rooms: string[]): Fluent => this.fluent.to(...rooms)
 
-	exclude(...ids: string[]): Fluent {
-		return this.fluent.exclude(...ids)
-	}
+	exclude = (...ids: string[]): Fluent => this.fluent.exclude(...ids)
 }

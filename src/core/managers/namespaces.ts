@@ -2,14 +2,14 @@ import { Namespace } from '~core/namespace'
 import type { Parser } from '~core/parser'
 
 export class NamespaceManager {
-	private namespaces: Map<string, Namespace> = new Map<string, Namespace>()
+	private namespaces = new Map<string, Namespace>()
 
 	constructor(
-		private parser: Parser,
-		private middlewareTimeout?: number,
+		private readonly parser: Parser,
+		private readonly middlewareTimeout?: number,
 	) {}
 
-	getOrCreate(path: string): Namespace {
+	getOrCreate = (path: string): Namespace => {
 		let namespace = this.namespaces.get(path)
 		if (!namespace) {
 			namespace = new Namespace(this.parser, this.middlewareTimeout)
@@ -18,9 +18,7 @@ export class NamespaceManager {
 		return namespace
 	}
 
-	remove(name: string): void {
-		if (this.namespaces.has(name)) {
-			this.namespaces.delete(name)
-		}
+	remove = (name: string): void => {
+		this.namespaces.delete(name)
 	}
 }

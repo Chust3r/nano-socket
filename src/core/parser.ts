@@ -1,7 +1,7 @@
 import type { IncomingData } from '~types'
 
 export class Parser {
-	deserialize(data: IncomingData) {
+	deserialize = (data: IncomingData) => {
 		const stringData = this.convertToString(data)
 		const parsed = this.toJSON(stringData)
 
@@ -20,7 +20,7 @@ export class Parser {
 		return { event, args }
 	}
 
-	serialize(event: string, ...args: any[]) {
+	serialize = (event: string, ...args: any[]) => {
 		if (typeof event !== 'string' || !Array.isArray(args)) {
 			throw new Error(
 				'Invalid message format: Event should be a string and args should be an array',
@@ -30,7 +30,7 @@ export class Parser {
 		return JSON.stringify([event, ...args])
 	}
 
-	private toJSON(data: string): any {
+	private toJSON = (data: string): any => {
 		try {
 			return JSON.parse(data)
 		} catch {
@@ -38,7 +38,7 @@ export class Parser {
 		}
 	}
 
-	private convertToString(data: IncomingData): string {
+	private convertToString = (data: IncomingData): string => {
 		if (typeof data === 'string') {
 			return data
 		}

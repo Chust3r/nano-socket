@@ -10,9 +10,9 @@ interface ServerFluentIProps {
 }
 
 export class ServerFluent implements Fluent {
-	private excludeIds: Set<string> = new Set()
-	private excludeRooms: Set<string> = new Set()
-	private targetRooms: Set<string> = new Set()
+	private excludeIds = new Set<string>()
+	private excludeRooms = new Set<string>()
+	private targetRooms = new Set<string>()
 	private clients: ClientsConnectedManager
 	private roomManager: RoomManager
 	private parser: Parser
@@ -24,24 +24,16 @@ export class ServerFluent implements Fluent {
 	}
 
 	private setTargetRooms(...rooms: string[]) {
-		this.targetRooms = new Set([...this.targetRooms, ...rooms])
+		for (const room of rooms) {
+			this.targetRooms.add(room)
+		}
 	}
 
 	private getTargetClients() {
 		let clients = this.clients.getAllClients().map((client) => client.id)
 
-		if (
-			this.targetRooms.size === 0 &&
-			this.excludeIds.size === 0 &&
-			this.excludeRooms.size === 0
-		) {
-			return clients
-		}
-
 		if (this.targetRooms.size > 0) {
-			clients = this.roomManager.getRoomsMembers(
-				...Array.from(this.targetRooms),
-			)
+			clients = this.roomManager.getRoomsMembers(...this.targetRooms)
 		}
 
 		if (this.excludeIds.size > 0) {
@@ -65,7 +57,7 @@ export class ServerFluent implements Fluent {
 		return clients
 	}
 
-	emit(event: string, ...args: any[]): void {
+	emit = (event: string, ...args: any[]): void => {
 		const msg = this.parser.serialize(event, args)
 		const clients = this.getTargetClients()
 
@@ -74,7 +66,7 @@ export class ServerFluent implements Fluent {
 		this.clients.sendToSpecificClients(msg, ...clients)
 	}
 
-	exclude(...args: string[]): this {
+	exclude = (...args: string[]): this => {
 		for (const arg of args) {
 			if (this.clients.has(arg)) {
 				this.excludeIds.add(arg)
@@ -82,11 +74,10 @@ export class ServerFluent implements Fluent {
 				this.excludeRooms.add(arg)
 			}
 		}
-
 		return this
 	}
 
-	to(...rooms: string[]): this {
+	to = (...rooms: string[]): this => {
 		this.setTargetRooms(...rooms)
 		return this
 	}

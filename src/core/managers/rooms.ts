@@ -1,128 +1,138 @@
 export class RoomManager {
-	private rooms: Map<string, Set<string>> = new Map()
-	private members: Map<string, Set<string>> = new Map()
+	private rooms = new Map<string, Set<string>>()
+	private members = new Map<string, Set<string>>()
 
-	add(room: string, id: string): void {
-		if (!this.rooms.has(room)) {
-			this.rooms.set(room, new Set())
-		}
-		this.rooms.get(room)?.add(id)
+	add = (room: string, id: string): void => {
+		if (!room || !id) return
 
-		if (!this.members.has(id)) {
-			this.members.set(id, new Set())
+		let roomSet = this.rooms.get(room)
+		if (!roomSet) {
+			roomSet = new Set()
+			this.rooms.set(room, roomSet)
 		}
-		this.members.get(id)?.add(room)
+		roomSet.add(id)
+
+		let memberSet = this.members.get(id)
+		if (!memberSet) {
+			memberSet = new Set()
+			this.members.set(id, memberSet)
+		}
+		memberSet.add(room)
 	}
 
-	private _remove(room: string, id: string): void {
-		const roomClients = this.rooms.get(room)
-		if (roomClients) {
-			roomClients.delete(id)
-			if (roomClients.size === 0) {
+	private _remove = (room: string, id: string): void => {
+		const roomSet = this.rooms.get(room)
+		if (roomSet) {
+			roomSet.delete(id)
+			if (roomSet.size === 0) {
 				this.rooms.delete(room)
 			}
 		}
 
-		const memberRooms = this.members.get(id)
-		if (memberRooms) {
-			memberRooms.delete(room)
-			if (memberRooms.size === 0) {
+		const memberSet = this.members.get(id)
+		if (memberSet) {
+			memberSet.delete(room)
+			if (memberSet.size === 0) {
 				this.members.delete(id)
 			}
 		}
 	}
 
-	getRooms(): string[] {
-		return Array.from(this.rooms.keys())
+	private _removeMemberFromRoom = (room: string, id: string): void => {
+		const memberSet = this.members.get(id)
+		if (memberSet) {
+			memberSet.delete(room)
+			if (memberSet.size === 0) {
+				this.members.delete(id)
+			}
+		}
 	}
 
-	getRoomMembers(room: string): string[] {
-		return Array.from(this.rooms.get(room) || [])
-	}
+	getRooms = (): string[] => [...this.rooms.keys()]
 
-	in(id: string, ...rooms: string[]): boolean {
-		return rooms.some((room) => this.rooms.get(room)?.has(id))
-	}
+	getRoomMembers = (room: string): string[] => {
+		const roomMembers = this.rooms.get(room)
+		return roomMembers ? [...roomMembers] : []
+	};
 
-	getRoomMembersCount(room: string): number {
-		return this.rooms.get(room)?.size ?? 0
-	}
+	in = (id: string, ...rooms: string[]): boolean =>
+		rooms.some((room) => this.rooms.get(room)?.has(id))
 
-	getRoomsMembers(...rooms: string[]): string[] {
+	getRoomMembersCount = (room: string): number =>
+		this.rooms.get(room)?.size ?? 0
+
+	getRoomsMembers = (...rooms: string[]): string[] => {
 		const clientIdsSet = new Set<string>()
-
 		for (const room of rooms) {
-			const clientsInRoom = this.rooms.get(room)
-			if (clientsInRoom) {
-				for (const clientId of clientsInRoom) {
+			const roomSet = this.rooms.get(room)
+			if (roomSet) {
+				for (const clientId of roomSet) {
 					clientIdsSet.add(clientId)
 				}
 			}
 		}
-
-		return Array.from(clientIdsSet)
+		return [...clientIdsSet]
 	}
 
-	deleteRoom(room: string) {
-		const members = this.rooms.get(room)
-		if (members) {
-			for (const memberId of members) {
-				const member = this.members.get(memberId)
-				if (member) {
-					member.delete(room)
-					if (member.size === 0) {
-						this.members.delete(memberId)
-					}
-				}
+	deleteRoom = (room: string): void => {
+		const roomSet = this.rooms.get(room)
+		if (roomSet) {
+			for (const id of roomSet) {
+				this._removeMemberFromRoom(room, id)
 			}
 			this.rooms.delete(room)
 		}
 	}
 
-	moveClientToRoom(id: string, from: string, to: string) {
+	moveClientToRoom = (id: string, from: string, to: string): void => {
+		if (from === to || !id || !from || !to) return
 		this._remove(from, id)
 		this.add(to, id)
 	}
 
-	merge(target: string, ...rooms: string[]) {
-		if (!this.rooms.has(target)) {
-			this.rooms.set(target, new Set())
+	merge = (target: string, ...rooms: string[]): void => {
+		if (!target || rooms.length === 0) return
+
+		let targetSet = this.rooms.get(target)
+		if (!targetSet) {
+			targetSet = new Set()
+			this.rooms.set(target, targetSet)
 		}
 
 		for (const room of rooms) {
-			const members = this.rooms.get(room)
-
-			if (members) {
-				for (const member of members) {
-					this.add(target, member)
+			const roomSet = this.rooms.get(room)
+			if (roomSet) {
+				for (const id of roomSet) {
+					targetSet.add(id)
+					this.members.get(id)?.add(target)
 				}
-				this.deleteRoom(room)
+				this.rooms.delete(room)
 			}
 		}
 	}
 
-	getMemberRooms(id: string): string[] {
-		return Array.from(this.members.get(id) ?? [])
+	getMemberRooms = (id: string): string[] => {
+		const memberRooms = this.members.get(id)
+		return memberRooms ? [...memberRooms] : []
 	}
 
-	remove(id: string, ...targetRooms: string[]): void {
+	remove = (id: string, ...targetRooms: string[]): void => {
 		if (targetRooms.length === 0) {
 			const memberRooms = this.members.get(id)
 			if (memberRooms) {
 				for (const room of memberRooms) {
 					this._remove(room, id)
 				}
-				this.members.delete(id)
 			}
 		} else {
 			for (const room of targetRooms) {
 				this._remove(room, id)
 			}
-
-			const memberRooms = this.members.get(id)
-			if (memberRooms && memberRooms.size === 0) {
-				this.members.delete(id)
-			}
 		}
+		this.members.delete(id)
 	}
+
+	hasRoom = (room: string): boolean => this.rooms.has(room)
+
+	hasMember = (id: string): boolean => this.members.has(id)
 }
