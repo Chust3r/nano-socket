@@ -19,7 +19,10 @@ export class Namespace implements Nam {
 	public middlewareManager: MiddlewareManager
 	protected fluent: Fluent
 
-	constructor(protected parser: Parser, middlewareTimeout?: number) {
+	constructor(
+		protected parser: Parser,
+		middlewareTimeout?: number,
+	) {
 		this.eventManager = new ServerEventsManager()
 		this.clientManager = new ClientsConnectedManager()
 		this.roomManager = new RoomManager()
@@ -65,7 +68,7 @@ export class Namespace implements Nam {
 
 	on = <K extends keyof ServerEventMap>(
 		event: K,
-		cb: ServerEventMap[K]
+		cb: ServerEventMap[K],
 	): void => {
 		this.eventManager.on(event, cb)
 	}

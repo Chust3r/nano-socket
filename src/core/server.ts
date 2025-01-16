@@ -27,27 +27,30 @@ export class ServerBase implements CommonServer {
 		return this.currentNamespace.clients
 	}
 
-	on<K extends keyof ServerEventMap>(event: K, cb: ServerEventMap[K]): void {
+	on = <K extends keyof ServerEventMap>(
+		event: K,
+		cb: ServerEventMap[K],
+	): void => {
 		this.currentNamespace.on(event, cb)
 	}
 
-	use(middleware: Middleware): void {
+	use = (middleware: Middleware): void => {
 		this.currentNamespace.use(middleware)
 	}
 
-	emit(event: string, ...args: any[]): void {
+	emit = (event: string, ...args: any[]): void => {
 		this.currentNamespace.emit(event, ...args)
 	}
 
-	to(...rooms: string[]): Fluent {
+	to = (...rooms: string[]): Fluent => {
 		return this.currentNamespace.to(...rooms)
 	}
 
-	exclude(...ids: string[]): Fluent {
+	exclude = (...ids: string[]): Fluent => {
 		return this.currentNamespace.exclude(...ids)
 	}
 
-	namespace(path: string): Namespace {
+	namespace = (path: string): Namespace => {
 		this.currentNamespace = this.namespaceManager.getOrCreate(path)
 		return this.currentNamespace
 	}

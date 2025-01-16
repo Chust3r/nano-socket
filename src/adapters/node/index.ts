@@ -17,9 +17,8 @@ export type ServerOptions = SO & {
 
 export class Server extends ServerBase {
 	private server?: WebSocketServer
-	private options: ServerOptions
 
-	constructor(options: ServerOptions) {
+	constructor(private options: ServerOptions) {
 		super(options.middlewareTimeout)
 		this.options = this.validateAndNormalizeOptions(options)
 		this.server = this.initializeServer()

@@ -10,28 +10,24 @@ export class BunClientAdapter
 	extends WebSocketAdapter
 	implements SocketAdapter
 {
-	private ws: ServerWebSocket<WebSocketData>
-
-	constructor(ws: ServerWebSocket<WebSocketData>) {
+	constructor(private ws: ServerWebSocket<WebSocketData>) {
 		super()
-
-		this.ws = ws
 	}
 
 	get readyState(): WebSocketReadyState {
 		return this.ws.readyState
 	}
 
-	close(code?: number, reason?: string): void {
+	close = (code?: number, reason?: string): void => {
 		this.ws.close(code, reason)
 		this.emit('close', code, reason)
 	}
 
-	send(data: OutgoingData): void {
+	send = (data: OutgoingData): void => {
 		this.ws.send(data)
 	}
 
-	terminate(): void {
+	terminate = (): void => {
 		this.ws.terminate()
 		this.emit('close')
 	}

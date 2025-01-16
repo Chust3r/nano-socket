@@ -23,13 +23,13 @@ export class ServerFluent implements Fluent {
 		this.roomManager = roomManager
 	}
 
-	private setTargetRooms(...rooms: string[]) {
+	private setTargetRooms = (...rooms: string[]) => {
 		for (const room of rooms) {
 			this.targetRooms.add(room)
 		}
 	}
 
-	private getTargetClients() {
+	private getTargetClients = () => {
 		let clients = this.clients.getAllClients().map((client) => client.id)
 
 		if (this.targetRooms.size > 0) {
@@ -43,11 +43,11 @@ export class ServerFluent implements Fluent {
 		if (this.excludeRooms.size > 0) {
 			clients = clients.filter((client) => {
 				const clientRooms = this.roomManager.getMemberRooms(client)
-				const isInExcludedRoom = Array.from(this.excludeRooms).some(
-					(room) => clientRooms.includes(room)
+				const isInExcludedRoom = Array.from(this.excludeRooms).some((room) =>
+					clientRooms.includes(room),
 				)
 				const isInTargetRoom = Array.from(this.targetRooms).some((room) =>
-					clientRooms.includes(room)
+					clientRooms.includes(room),
 				)
 
 				return !(isInExcludedRoom && !isInTargetRoom)

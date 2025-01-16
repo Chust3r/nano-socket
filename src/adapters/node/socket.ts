@@ -10,9 +10,7 @@ export class NodeClientAdapter
 	extends WebSocketAdapter
 	implements SocketAdapter
 {
-	private ws: WebSocket
-
-	constructor(ws: WebSocket) {
+	constructor(private ws: WebSocket) {
 		super()
 		this.ws = ws
 		this.ws.on('close', (code, reason) => this.emit('close', code, reason))
@@ -24,7 +22,7 @@ export class NodeClientAdapter
 		return this.ws.readyState
 	}
 
-	close(code?: number, reason?: string): void {
+	close = (code?: number, reason?: string): void => {
 		if (this.isClosed) return
 
 		this.isClosed = true
@@ -32,11 +30,11 @@ export class NodeClientAdapter
 		this.emit('close', code, reason)
 	}
 
-	send(data: OutgoingData): void {
+	send = (data: OutgoingData): void => {
 		if (this.readyState === WebSocketReadyState.OPEN) this.ws.send(data)
 	}
 
-	terminate(): void {
+	terminate = (): void => {
 		this.ws.terminate()
 		this.emit('close')
 	}
