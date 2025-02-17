@@ -4,6 +4,7 @@ export type IncomingData =
 	| Buffer<ArrayBufferLike>
 	| ArrayBuffer
 	| Buffer<ArrayBufferLike>[]
+	| string
 
 export interface SocketAdapterEvents {
 	close: (code: number, reason: string) => void
@@ -17,7 +18,7 @@ export interface SocketAdapter {
 	terminate: () => void
 	on: (
 		event: keyof SocketAdapterEvents,
-		listener: SocketAdapterEvents[keyof SocketAdapterEvents],
+		listener: SocketAdapterEvents[keyof SocketAdapterEvents]
 	) => void
 }
 
@@ -30,7 +31,7 @@ export interface ServerEvents {
 export interface Server {
 	on: (
 		event: keyof ServerEvents,
-		listener: ServerEvents[keyof ServerEvents],
+		listener: ServerEvents[keyof ServerEvents]
 	) => void | Promise<void>
 }
 
@@ -46,4 +47,9 @@ export interface Storage<T> {
 	map: (callback: (value: T, key: string) => void) => void
 	entries: () => [string, T][]
 	clone: () => Storage<T>
+}
+
+export interface Parser {
+	deserialize: (data: IncomingData) => { event: string; params: any[] }
+	serialize: (event: string, ...params: any[]) => string
 }
