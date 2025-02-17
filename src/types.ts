@@ -17,7 +17,7 @@ export interface SocketAdapter {
 	terminate: () => void
 	on: (
 		event: keyof SocketAdapterEvents,
-		listener: SocketAdapterEvents[keyof SocketAdapterEvents]
+		listener: SocketAdapterEvents[keyof SocketAdapterEvents],
 	) => void
 }
 
@@ -30,6 +30,6 @@ export interface ServerEvents {
 export interface Server {
 	on: (
 		event: keyof ServerEvents,
-		listener: ServerEvents[keyof ServerEvents]
+		listener: ServerEvents[keyof ServerEvents],
 	) => void
 }

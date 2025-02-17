@@ -7,7 +7,7 @@ export class EventEmitter<CustomEvents extends Record<string, any>> {
 
 	on<Event extends keyof Events<CustomEvents>>(
 		event: Event,
-		listener: Listener<Events<CustomEvents>[Event]>
+		listener: Listener<Events<CustomEvents>[Event]>,
 	): void {
 		const pattern =
 			this.getWildcardPattern(event as string) || (event as string)
@@ -15,15 +15,23 @@ export class EventEmitter<CustomEvents extends Record<string, any>> {
 		if (!this.events.has(pattern)) {
 			this.events.set(pattern, new Set())
 		}
-		this.events.get(pattern)?.add(listener)
+
+		const wrappedListener = (...args: any[]) => {
+			const result = listener(...args)
+			if (result instanceof Promise) {
+				result.catch((err) => this.emitError(err))
+			}
+		}
+
+		this.events.get(pattern)?.add(wrappedListener)
 	}
 
 	once<Event extends keyof Events<CustomEvents>>(
 		event: Event,
-		listener: Listener<Events<CustomEvents>[Event]>
+		listener: Listener<Events<CustomEvents>[Event]>,
 	): void {
 		const onceWrapper: Listener<Events<CustomEvents>[Event]> = async (
-			value
+			value,
 		) => {
 			this.off(event, onceWrapper)
 			try {
@@ -32,12 +40,13 @@ export class EventEmitter<CustomEvents extends Record<string, any>> {
 				this.emitError(err as Error)
 			}
 		}
+
 		this.on(event, onceWrapper)
 	}
 
 	off<Event extends keyof Events<CustomEvents>>(
 		event: Event,
-		listener?: Listener<Events<CustomEvents>[Event]>
+		listener?: Listener<Events<CustomEvents>[Event]>,
 	): void {
 		const pattern =
 			this.getWildcardPattern(event as string) || (event as string)
@@ -55,26 +64,24 @@ export class EventEmitter<CustomEvents extends Record<string, any>> {
 		}
 	}
 
-	async emit<Event extends Exclude<keyof CustomEvents, 'error'>>(
+	emit<Event extends Exclude<keyof CustomEvents, 'error'>>(
 		event: Event,
 		...args: Parameters<CustomEvents[Event]>
-	): Promise<void> {
+	): void {
 		const listeners = [...(this.events.get(event as string) || [])]
 
 		if (listeners.length === 0) return
 
-		const results = listeners.map(async (listener) => {
+		for (const listener of listeners) {
 			try {
-				const result = listener(args)
+				const result = listener(...args)
 				if (result instanceof Promise) {
-					await result.catch((err) => this.emitError(err))
+					result.catch((err) => this.emitError(err))
 				}
 			} catch (err) {
 				this.emitError(err as Error)
 			}
-		})
-
-		await Promise.all(results)
+		}
 	}
 
 	clear<Event extends keyof Events<CustomEvents>>(event?: Event): void {
@@ -92,16 +99,14 @@ export class EventEmitter<CustomEvents extends Record<string, any>> {
 
 		if (listeners.length === 0) return
 
-		const results = listeners.map(async (listener) => {
+		for (const listener of listeners) {
 			try {
 				const result = listener(err)
 				if (result instanceof Promise) {
 					await result
 				}
 			} catch (_) {}
-		})
-
-		await Promise.all(results)
+		}
 	}
 
 	private getWildcardPattern(event: string): string | undefined {

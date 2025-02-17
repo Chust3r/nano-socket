@@ -1,5 +1,5 @@
+import type { Server, ServerEvents } from '~types'
 import { EventEmitter } from './event-emitter'
-import type { ServerEvents, Server } from '~types'
 
 export class ServerBase implements Server {
 	protected context = {
@@ -8,7 +8,7 @@ export class ServerBase implements Server {
 
 	on<Event extends keyof ServerEvents>(
 		event: Event,
-		listener: ServerEvents[Event]
+		listener: ServerEvents[Event],
 	) {
 		this.context.events.on(event, listener)
 	}

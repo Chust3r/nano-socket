@@ -7,7 +7,7 @@ export class NodeSocketAdapter extends SocketBase implements SocketAdapter {
 		super()
 
 		this.ws.on('close', (code, reason) =>
-			this.emit('close', code, reason.toString())
+			this.emit('close', code, reason.toString()),
 		)
 		this.ws.on('message', (data) => this.emit('message', data))
 		this.ws.on('error', (err) => this.emit('error', err))
