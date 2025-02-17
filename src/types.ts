@@ -31,5 +31,19 @@ export interface Server {
 	on: (
 		event: keyof ServerEvents,
 		listener: ServerEvents[keyof ServerEvents],
-	) => void
+	) => void | Promise<void>
+}
+
+export interface Storage<T> {
+	set: (key: string, value: T) => void
+	get: (key: string) => T | undefined
+	delete: (key: string) => boolean
+	has: (key: string) => boolean
+	clear: () => void
+	list: () => T[]
+	keys: () => string[]
+	size: () => number
+	map: (callback: (value: T, key: string) => void) => void
+	entries: () => [string, T][]
+	clone: () => Storage<T>
 }
