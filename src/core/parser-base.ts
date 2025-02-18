@@ -1,4 +1,4 @@
-import type { Parser, IncomingData } from '~types'
+import type { IncomingData, Parser } from '~types'
 
 export class ParserBase implements Parser {
 	deserialize = (data: IncomingData): { event: string; params: any[] } => {
@@ -7,7 +7,7 @@ export class ParserBase implements Parser {
 
 		if (!Array.isArray(parsed) || parsed.length === 0) {
 			throw new Error(
-				'Invalid message format: Expected an array with event and arguments'
+				'Invalid message format: Expected an array with event and arguments',
 			)
 		}
 
@@ -50,9 +50,7 @@ export class ParserBase implements Parser {
 
 		if (Array.isArray(data)) {
 			return data
-				.map((item) =>
-					Buffer.isBuffer(item) ? item.toString('utf-8') : ''
-				)
+				.map((item) => (Buffer.isBuffer(item) ? item.toString('utf-8') : ''))
 				.join('')
 		}
 
@@ -61,7 +59,7 @@ export class ParserBase implements Parser {
 		}
 
 		throw new Error(
-			'Invalid data format received. Expected string, Buffer, Array, or ArrayBuffer.'
+			'Invalid data format received. Expected string, Buffer, Array, or ArrayBuffer.',
 		)
 	}
 }
