@@ -22,16 +22,18 @@ export interface SocketAdapter {
 	) => void
 }
 
-export interface ServerEvents {
-	connection: () => void | Promise<void>
+export interface ServerEvents<
+	T extends Record<string, (...params: any[]) => void>,
+> {
+	connection: (socket: Socket<T>) => void | Promise<void>
 	disconnection: () => void | Promise<void>
 	error: (err: Error) => void | Promise<void>
 }
 
-export interface Server {
+export interface Server<T extends Record<string, (...params: any[]) => void>> {
 	on: (
-		event: keyof ServerEvents,
-		listener: ServerEvents[keyof ServerEvents],
+		event: keyof ServerEvents<T>,
+		listener: ServerEvents<T>[keyof ServerEvents<T>],
 	) => void | Promise<void>
 }
 

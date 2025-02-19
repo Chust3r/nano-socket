@@ -1,6 +1,6 @@
 import type { WebSocket } from 'ws'
 import { SocketBase } from '~core/socket-base'
-import type { SocketAdapter } from '~types'
+import type { OutgoingData, SocketAdapter } from '~types'
 
 export class NodeSocketAdapter extends SocketBase implements SocketAdapter {
 	constructor(private ws: WebSocket) {
@@ -17,7 +17,9 @@ export class NodeSocketAdapter extends SocketBase implements SocketAdapter {
 		this.ws.close(code, reason)
 	}
 
-	send = (): void => {}
+	send = (data: OutgoingData): void => {
+		this.ws.send(data)
+	}
 
 	terminate = (): void => {
 		this.ws.terminate()
