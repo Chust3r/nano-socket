@@ -6,6 +6,8 @@ export type IncomingData =
 	| Buffer<ArrayBufferLike>[]
 	| string
 
+export type CustomEvents = Record<string, (...params: any[]) => void>
+
 export interface SocketAdapterEvents {
 	close: (code: number, reason: string) => void
 	error: (err: Error) => void
@@ -22,15 +24,13 @@ export interface SocketAdapter {
 	) => void
 }
 
-export interface ServerEvents<
-	T extends Record<string, (...params: any[]) => void>,
-> {
+export interface ServerEvents<T extends CustomEvents> {
 	connection: (socket: Socket<T>) => void | Promise<void>
 	disconnection: () => void | Promise<void>
 	error: (err: Error) => void | Promise<void>
 }
 
-export interface Server<T extends Record<string, (...params: any[]) => void>> {
+export interface Server<T extends CustomEvents> {
 	on: (
 		event: keyof ServerEvents<T>,
 		listener: ServerEvents<T>[keyof ServerEvents<T>],
@@ -64,7 +64,7 @@ export interface SocketEvents {
 	disconnect: (code: number, reason: string) => void
 }
 
-export interface Socket<T extends Record<string, (...params: any[]) => void>> {
+export interface Socket<T extends CustomEvents> {
 	on<K extends keyof T>(event: K, listener: T[K]): void
 	emit<K extends keyof T>(event: K, ...params: Parameters<T[K]>): void
 	on<K extends keyof SocketEvents>(event: K, listener: SocketEvents[K]): void

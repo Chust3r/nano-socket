@@ -1,9 +1,7 @@
-import type { Server, ServerEvents } from '~types'
+import type { CustomEvents, Server, ServerEvents } from '~types'
 import { EventEmitter } from './event-emitter'
 
-export class ServerBase<T extends Record<string, (...params: any[]) => void>>
-	implements Server<T>
-{
+export class ServerBase<T extends CustomEvents> implements Server<T> {
 	protected context = {
 		events: new EventEmitter(),
 	}

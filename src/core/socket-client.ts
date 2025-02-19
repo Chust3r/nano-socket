@@ -1,6 +1,12 @@
 import { nanoid } from 'nanoid'
 import { EventEmitter } from '~core/event-emitter'
-import type { IncomingData, Socket, SocketAdapter, SocketEvents } from '~types'
+import type {
+	CustomEvents,
+	IncomingData,
+	Socket,
+	SocketAdapter,
+	SocketEvents,
+} from '~types'
 
 interface SocketClientContext {
 	id: string
@@ -12,7 +18,7 @@ interface SocketClientProps {
 	adapter: SocketAdapter
 }
 
-export class SocketClient<T extends Record<string, any>> implements Socket<T> {
+export class SocketClient<T extends CustomEvents> implements Socket<T> {
 	private context: SocketClientContext
 
 	constructor(props: SocketClientProps) {

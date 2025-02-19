@@ -16,7 +16,8 @@
 			"~core/*": ["core/*"],
 			"~middleware/*": ["middleware/*"],
 			"~utils/*": ["utils/*"],
-			"~types": ["types.ts"]
+			"~types": ["types.ts"],
+			"~managers/*": ["managers/*"]
 		}
 	},
 	"include": ["src/**/*"],
