@@ -11,27 +11,39 @@ export class StorageBase<T> implements Storage<T> {
 		this.store.set(key, value)
 	}
 
-	get = (key: string): T | undefined => this.store.get(key)
+	get = (key: string): T | undefined => {
+		return this.store.get(key)
+	}
 
-	delete = (key: string): boolean => this.store.delete(key)
+	delete = (key: string): boolean => {
+		return this.store.delete(key)
+	}
 
-	has = (key: string): boolean => this.store.has(key)
+	has = (key: string): boolean => {
+		return this.store.has(key)
+	}
 
 	clear = (): void => {
 		this.store.clear()
 	}
 
-	list = (): T[] => Array.from(this.store.values())
-
-	keys = (): string[] => Array.from(this.store.keys())
-
-	size = (): number => this.store.size
-
-	map = (callback: (value: T, key: string) => void): void => {
-		this.store.forEach((value, key) => callback(value, key))
+	list = (): T[] => {
+		return Array.from(this.store.values())
 	}
 
-	entries = (): [string, T][] => Array.from(this.store.entries())
+	keys = (): string[] => {
+		return Array.from(this.store.keys())
+	}
 
-	clone = (): StorageBase<T> => new StorageBase(this.entries())
+	size = (): number => {
+		return this.store.size
+	}
+
+	map = (callback: (value: T, key: string) => void): void => {
+		this.store.forEach(callback)
+	}
+
+	entries = (): [string, T][] => {
+		return Array.from(this.store.entries())
+	}
 }

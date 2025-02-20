@@ -20,20 +20,20 @@ export interface SocketAdapter {
 	terminate: () => void
 	on: (
 		event: keyof SocketAdapterEvents,
-		listener: SocketAdapterEvents[keyof SocketAdapterEvents],
+		listener: SocketAdapterEvents[keyof SocketAdapterEvents]
 	) => void
 }
 
-export interface ServerEvents<T extends CustomEvents> {
+export interface ServerEvents<T extends CustomEvents = {}> {
 	connection: (socket: Socket<T>) => void | Promise<void>
 	disconnection: () => void | Promise<void>
 	error: (err: Error) => void | Promise<void>
 }
 
-export interface Server<T extends CustomEvents> {
+export interface Server<T extends CustomEvents = {}> {
 	on: (
 		event: keyof ServerEvents<T>,
-		listener: ServerEvents<T>[keyof ServerEvents<T>],
+		listener: ServerEvents<T>[keyof ServerEvents<T>]
 	) => void | Promise<void>
 }
 
@@ -48,7 +48,6 @@ export interface Storage<T> {
 	size: () => number
 	map: (callback: (value: T, key: string) => void) => void
 	entries: () => [string, T][]
-	clone: () => Storage<T>
 }
 
 export interface Parser {
@@ -64,8 +63,16 @@ export interface SocketEvents {
 	disconnect: (code: number, reason: string) => void
 }
 
-export interface Socket<T extends CustomEvents> {
+export interface Socket<T extends CustomEvents = {}> {
+	id: string
 	on<K extends keyof T>(event: K, listener: T[K]): void
 	emit<K extends keyof T>(event: K, ...params: Parameters<T[K]>): void
 	on<K extends keyof SocketEvents>(event: K, listener: SocketEvents[K]): void
+}
+
+export interface Namespace<T extends CustomEvents = {}> {
+	on: (
+		event: keyof ServerEvents<T>,
+		listener: ServerEvents<T>[keyof ServerEvents<T>]
+	) => void | Promise<void>
 }
