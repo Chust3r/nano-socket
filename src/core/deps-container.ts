@@ -16,4 +16,12 @@ export class DependenciesContainer<T extends Record<string, any>> {
 	update<K extends keyof T>(name: K, instance: T[K]): void {
 		this.services.set(name as string, instance)
 	}
+
+	has<K extends keyof T>(name: K): boolean {
+		return this.services.has(name as string)
+	}
+
+	remove<K extends keyof T>(name: K): void {
+		this.services.delete(name as string)
+	}
 }

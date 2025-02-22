@@ -3,35 +3,42 @@ import { EventEmitter } from '~core/event-emitter'
 import type {
 	CustomEvents,
 	IncomingData,
+	Parser,
 	Socket,
 	SocketAdapter,
 	SocketEvents,
 } from '~types'
+import { dependencies } from '~utils/dependencies'
 
 interface SocketClientContext {
 	id: string
 	events: EventEmitter<any>
 	adapter: SocketAdapter
-}
-
-interface SocketClientProps {
-	adapter: SocketAdapter
+	parser: Parser
 }
 
 export class SocketClient<T extends CustomEvents> implements Socket<T> {
 	private context: SocketClientContext
 
-	constructor(props: SocketClientProps) {
+	constructor(adapter: SocketAdapter) {
 		this.context = {
-			id: nanoid(),
+			id: dependencies.resolve('generateId')(),
 			events: new EventEmitter(),
-			adapter: props.adapter,
+			adapter,
+			parser: dependencies.resolve('parser'),
 		}
 
 		this.context.adapter.on('message', this.handleMessage)
 	}
 
-	private handleMessage = (data: IncomingData) => {}
+	private handleMessage = (data: IncomingData) => {
+		const { event, params } = this.context.parser.deserialize(data)
+		this.context.events.emit(event, ...params)
+	}
+
+	get id() {
+		return this.context.id
+	}
 
 	on<K extends keyof T>(event: K, listener: T[K]): void
 

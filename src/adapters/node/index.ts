@@ -14,7 +14,7 @@ export class Nano<T extends CustomEvents> extends ServerBase<T> {
 		this.server.on('connection', (socket, req) => {
 			const adapter = new NodeSocketAdapter(socket)
 
-			const client = new SocketClient<T>({ adapter })
+			const client = new SocketClient<T>(adapter)
 
 			this.context.events.emit('connection', client)
 		})

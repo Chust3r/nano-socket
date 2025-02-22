@@ -8,7 +8,7 @@ export class NamespaceBase<T extends CustomEvents> implements Namespace<T> {
 
 	public on<K extends keyof ServerEvents<T>>(
 		event: K,
-		listener: ServerEvents<T>[K]
+		listener: ServerEvents<T>[K],
 	) {
 		this.context.events.on(event, listener)
 	}

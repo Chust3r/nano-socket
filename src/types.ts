@@ -20,7 +20,7 @@ export interface SocketAdapter {
 	terminate: () => void
 	on: (
 		event: keyof SocketAdapterEvents,
-		listener: SocketAdapterEvents[keyof SocketAdapterEvents]
+		listener: SocketAdapterEvents[keyof SocketAdapterEvents],
 	) => void
 }
 
@@ -33,7 +33,7 @@ export interface ServerEvents<T extends CustomEvents = {}> {
 export interface Server<T extends CustomEvents = {}> {
 	on: (
 		event: keyof ServerEvents<T>,
-		listener: ServerEvents<T>[keyof ServerEvents<T>]
+		listener: ServerEvents<T>[keyof ServerEvents<T>],
 	) => void | Promise<void>
 }
 
@@ -73,6 +73,6 @@ export interface Socket<T extends CustomEvents = {}> {
 export interface Namespace<T extends CustomEvents = {}> {
 	on: (
 		event: keyof ServerEvents<T>,
-		listener: ServerEvents<T>[keyof ServerEvents<T>]
+		listener: ServerEvents<T>[keyof ServerEvents<T>],
 	) => void | Promise<void>
 }
