@@ -16,7 +16,9 @@ export class Nano<T extends CustomEvents> extends ServerBase<T> {
 
 			const client = new SocketClient<T>(adapter)
 
-			this.context.events.emit('connection', client)
+			const namespace = this.context.namespaces.getOrCreate('/')
+
+			namespace.context.events.emit('connection', client)
 		})
 	}
 }

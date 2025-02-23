@@ -2,8 +2,12 @@ import type { CustomEvents, Namespace, ServerEvents } from '~types'
 import { EventEmitter } from './event-emitter'
 
 export class NamespaceBase<T extends CustomEvents> implements Namespace<T> {
-	protected context = {
+	public context = {
 		events: new EventEmitter(),
+	}
+
+	public getContext() {
+		return this.context
 	}
 
 	public on<K extends keyof ServerEvents<T>>(

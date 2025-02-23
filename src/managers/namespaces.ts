@@ -1,13 +1,13 @@
 import { NamespaceBase } from '~core/namespace-base'
 import { StorageBase } from '~core/storage-base'
-import type { CustomEvents, Namespace } from '~types'
+import type { CustomEvents } from '~types'
 
 export class NamespaceManager<T extends CustomEvents> {
 	private context = {
-		storage: new StorageBase<Namespace<T>>(),
+		storage: new StorageBase<NamespaceBase<T>>(),
 	}
 
-	getOrCreate = (path: string): Namespace<T> => {
+	getOrCreate = (path: string): NamespaceBase<T> => {
 		let namespace = this.context.storage.get(path)
 
 		if (!namespace) {
@@ -22,7 +22,7 @@ export class NamespaceManager<T extends CustomEvents> {
 		this.context.storage.delete(path)
 	}
 
-	getAll = (): Namespace<T>[] => {
+	getAll = (): NamespaceBase<T>[] => {
 		return this.context.storage.list()
 	}
 }
