@@ -8,6 +8,13 @@ export type IncomingData =
 
 export type CustomEvents = Record<string, (...params: any[]) => void>
 
+export type NextFunction = () => void | Promise<void>
+
+export type Middleware = (
+	ctx: Context,
+	next: NextFunction,
+) => void | Promise<void>
+
 export interface SocketAdapterEvents {
 	close: (code: number, reason: string) => void
 	error: (err: Error) => void
@@ -75,4 +82,9 @@ export interface Namespace<T extends CustomEvents = {}> {
 		event: keyof ServerEvents<T>,
 		listener: ServerEvents<T>[keyof ServerEvents<T>],
 	) => void | Promise<void>
+}
+
+export interface Context {
+	socket: Socket<any>
+	url: string
 }
