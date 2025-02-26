@@ -16,13 +16,9 @@ export class Nano<T extends CustomEvents> extends ServerBase<T> {
 			const client = new SocketClient<T>(adapter)
 			const namespace = this.context.namespaces.getOrCreate('/')
 
-			this.context.middlewares.run(
-				'/',
-				{ socket: client as any, url: req.url || '/' },
-				() => {
-					namespace.context.events.emit('connection', client)
-				},
-			)
+			this.run('/', {}, () => {
+				namespace.handleConnection(client)
+			})
 		})
 	}
 

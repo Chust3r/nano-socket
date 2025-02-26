@@ -1,18 +1,18 @@
-import type { CustomEvents, Namespace, ServerEvents } from '~types'
+import type { CustomEvents, Namespace, ServerEvents, Socket } from '~types'
 import { EventEmitter } from './event-emitter'
 
 export class NamespaceBase<T extends CustomEvents> implements Namespace<T> {
-	public context = {
+	private context = {
 		events: new EventEmitter(),
 	}
 
-	public getContext() {
-		return this.context
+	public handleConnection = (client: Socket<T>) => {
+		this.context.events.emit('connection', client)
 	}
 
 	public on<K extends keyof ServerEvents<T>>(
 		event: K,
-		listener: ServerEvents<T>[K],
+		listener: ServerEvents<T>[K]
 	) {
 		this.context.events.on(event, listener)
 	}

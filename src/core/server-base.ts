@@ -18,6 +18,10 @@ export class ServerBase<T extends CustomEvents> implements Server<T> {
 		this.namespace = this.context.namespaces.getOrCreate('/')
 	}
 
+	protected run = (path: string, ctx: any, cb: () => void) => {
+		this.context.middlewares.run(path, ctx, cb)
+	}
+
 	on<K extends keyof ServerEvents<T>>(event: K, listener: ServerEvents<T>[K]) {
 		this.context.events.on(event, listener)
 		this.namespace.on(event, listener)
