@@ -36,4 +36,8 @@ export class ServerBase<T extends CustomEvents> implements Server<T> {
 		this.context.events.on(event, listener)
 		this.main.on(event, listener)
 	}
+
+	namespace(path: string): Namespace {
+		return this.context.namespaces.getOrCreate(path)
+	}
 }
