@@ -10,13 +10,12 @@ export class ServerBase<T extends CustomEvents> implements Server<T> {
 		dependencies: dependencies,
 		namespaces: new NamespaceManager<T>(),
 		middlewares: new MiddlewaresManager(),
-		path: '/',
 	}
 
-	private namespace: Namespace
+	private main: Namespace
 
 	constructor() {
-		this.namespace = this.context.namespaces.getOrCreate(this.context.path)
+		this.main = this.context.namespaces.getOrCreate('/')
 	}
 
 	protected run = (path: string, ctx: any, cb: () => void) => {
@@ -35,6 +34,6 @@ export class ServerBase<T extends CustomEvents> implements Server<T> {
 
 	on<K extends keyof ServerEvents<T>>(event: K, listener: ServerEvents<T>[K]) {
 		this.context.events.on(event, listener)
-		this.namespace.on(event, listener)
+		this.main.on(event, listener)
 	}
 }
