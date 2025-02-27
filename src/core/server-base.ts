@@ -10,16 +10,27 @@ export class ServerBase<T extends CustomEvents> implements Server<T> {
 		dependencies: dependencies,
 		namespaces: new NamespaceManager<T>(),
 		middlewares: new MiddlewaresManager(),
+		path: '/',
 	}
 
 	private namespace: Namespace
 
 	constructor() {
-		this.namespace = this.context.namespaces.getOrCreate('/')
+		this.namespace = this.context.namespaces.getOrCreate(this.context.path)
 	}
 
 	protected run = (path: string, ctx: any, cb: () => void) => {
 		this.context.middlewares.run(path, ctx, cb)
+	}
+
+	protected getRequestPath = (url?: string, basePath = '/') => {
+		if (!url) return basePath
+
+		const relativePath = url.startsWith(basePath)
+			? url.substring(basePath.length)
+			: url
+
+		return relativePath.startsWith('/') ? relativePath : `/${relativePath}`
 	}
 
 	on<K extends keyof ServerEvents<T>>(event: K, listener: ServerEvents<T>[K]) {

@@ -15,8 +15,9 @@ export class Nano<T extends CustomEvents> extends ServerBase<T> {
 			const adapter = new NodeSocketAdapter(socket)
 			const client = new SocketClient<T>(adapter)
 			const namespace = this.context.namespaces.getOrCreate('/')
+			const path = this.getRequestPath(req.url)
 
-			this.run('/', {}, () => {
+			this.run(path, {}, () => {
 				namespace.handleConnection(client)
 			})
 		})
