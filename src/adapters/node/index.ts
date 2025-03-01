@@ -5,8 +5,8 @@ import type { ExtendedEvents, Middleware } from '~types'
 import { NodeSocketAdapter } from './socket'
 
 export class Nano<
-	T extends ExtendedEvents = {},
-	U extends ExtendedEvents = {},
+	T extends ExtendedEvents,
+	U extends ExtendedEvents,
 > extends ServerBase<T, U> {
 	private server: WebSocketServer
 
