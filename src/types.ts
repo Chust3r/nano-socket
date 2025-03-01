@@ -99,6 +99,5 @@ export interface Namespace<
 }
 
 export interface Context {
-	socket: Socket<any>
-	url: string
+	socket: Socket
 }

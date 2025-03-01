@@ -1,6 +1,5 @@
 import { WebSocketServer } from 'ws'
 import { ServerBase } from '~core/server-base'
-import { SocketClient } from '~core/socket-client'
 import type { ExtendedEvents, Middleware } from '~types'
 import { NodeSocketAdapter } from './socket'
 
@@ -16,11 +15,12 @@ export class Nano<
 
 		this.server.on('connection', (socket, req) => {
 			const adapter = new NodeSocketAdapter(socket)
-			const client = new SocketClient<T>(adapter)
+			const client = this.createClient<T>(adapter)
 			const path = this.getRequestPath(req.url, '/')
-			const namespace = this.context.namespaces.getOrCreate(path)
+			const namespace = this.getNamespace(path)
+			const context = this.createContext(client)
 
-			this.run(path, {}, () => {
+			this.run(path, context, () => {
 				namespace.handleConnection(client)
 			})
 		})

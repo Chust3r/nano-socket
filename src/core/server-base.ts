@@ -1,14 +1,20 @@
 import { MiddlewaresManager } from '~managers/middlewares'
 import { NamespaceManager } from '~managers/namespaces'
-import type { ExtendedEvents, Namespace, Server, ServerEvents } from '~types'
+import type {
+	Context,
+	ExtendedEvents,
+	Namespace,
+	Server,
+	ServerEvents,
+	SocketAdapter,
+} from '~types'
 import { dependencies } from '~utils/dependencies'
-import { EventEmitter } from './event-emitter'
+import { SocketClient } from './socket-client'
 
 export class ServerBase<T extends ExtendedEvents, U extends ExtendedEvents>
 	implements Server<T, U>
 {
 	protected context = {
-		events: new EventEmitter(),
 		dependencies: dependencies,
 		namespaces: new NamespaceManager<T, U>(),
 		middlewares: new MiddlewaresManager(),
@@ -20,7 +26,7 @@ export class ServerBase<T extends ExtendedEvents, U extends ExtendedEvents>
 		this.main = this.context.namespaces.getOrCreate('/')
 	}
 
-	protected run = (path: string, ctx: any, cb: () => void) => {
+	protected run = (path: string, ctx: Context, cb: () => void) => {
 		this.context.middlewares.run(path, ctx, cb)
 	}
 
@@ -34,8 +40,23 @@ export class ServerBase<T extends ExtendedEvents, U extends ExtendedEvents>
 		return relativePath.startsWith('/') ? relativePath : `/${relativePath}`
 	}
 
+	protected createClient = <Client extends ExtendedEvents>(
+		adapter: SocketAdapter,
+	) => {
+		return new SocketClient<Client>(adapter)
+	}
+
+	protected getNamespace = (path: string) => {
+		return this.context.namespaces.getOrCreate(path)
+	}
+
+	protected createContext = (client: SocketClient<T>): Context => {
+		return {
+			socket: client,
+		}
+	}
+
 	on<K extends keyof ServerEvents<T>>(event: K, listener: ServerEvents<T>[K]) {
-		this.context.events.on(event, listener)
 		this.main.on(event, listener)
 	}
 
