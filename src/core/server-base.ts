@@ -71,7 +71,7 @@ export class ServerBase<T extends ExtendedEvents, U extends ExtendedEvents>
 
 	namespace<
 		ClientEvents extends ExtendedEvents,
-		NamespaceEvents extends ExtendedEvents,
+		NamespaceEvents extends ExtendedEvents = ClientEvents,
 	>(path: string): Namespace<T & ClientEvents, U & NamespaceEvents> {
 		return this.context.namespaces.getOrCreate<
 			T & ClientEvents,

@@ -1,11 +1,11 @@
 import { WebSocketServer } from 'ws'
 import { ServerBase } from '~core/server-base'
-import type { ExtendedEvents, Middleware } from '~types'
+import type { ExtendedEvents } from '~types'
 import { NodeSocketAdapter } from './socket'
 
 export class Nano<
-	T extends ExtendedEvents,
-	U extends ExtendedEvents,
+	T extends ExtendedEvents = ExtendedEvents,
+	U extends ExtendedEvents = T,
 > extends ServerBase<T, U> {
 	private server: WebSocketServer
 
@@ -24,9 +24,5 @@ export class Nano<
 				namespace.handleConnection(client)
 			})
 		})
-	}
-
-	use = (middleware: Middleware) => {
-		this.context.middlewares.add('/', middleware)
 	}
 }
