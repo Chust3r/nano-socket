@@ -1,10 +1,13 @@
 import { WebSocketServer } from 'ws'
 import { ServerBase } from '~core/server-base'
 import { SocketClient } from '~core/socket-client'
-import type { CustomEvents, Middleware } from '~types'
+import type { ExtendedEvents, Middleware } from '~types'
 import { NodeSocketAdapter } from './socket'
 
-export class Nano<T extends CustomEvents> extends ServerBase<T> {
+export class Nano<
+	T extends ExtendedEvents = {},
+	U extends ExtendedEvents = {},
+> extends ServerBase<T, U> {
 	private server: WebSocketServer
 
 	constructor() {

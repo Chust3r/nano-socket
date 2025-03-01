@@ -1,17 +1,26 @@
 import { NamespaceBase } from '~core/namespace-base'
 import { StorageBase } from '~core/storage-base'
-import type { CustomEvents } from '~types'
+import type { ExtendedEvents } from '~types'
 
-export class NamespaceManager<T extends CustomEvents> {
+export class NamespaceManager<
+	T extends ExtendedEvents,
+	U extends ExtendedEvents,
+> {
 	private context = {
-		storage: new StorageBase<NamespaceBase<T>>(),
+		storage: new StorageBase<NamespaceBase<T, U>>(),
 	}
 
-	getOrCreate = (path: string): NamespaceBase<T> => {
-		let namespace = this.context.storage.get(path)
+	getOrCreate<
+		ClientEvents extends ExtendedEvents = {},
+		NamespaceEvents extends ExtendedEvents = {},
+	>(path: string): NamespaceBase<T & ClientEvents, U & NamespaceEvents> {
+		let namespace = this.context.storage.get(path) as NamespaceBase<
+			T & ClientEvents,
+			U & NamespaceEvents
+		>
 
 		if (!namespace) {
-			namespace = new NamespaceBase<T>()
+			namespace = new NamespaceBase<T & ClientEvents, U & NamespaceEvents>()
 			this.context.storage.set(path, namespace)
 		}
 
@@ -22,7 +31,7 @@ export class NamespaceManager<T extends CustomEvents> {
 		this.context.storage.delete(path)
 	}
 
-	getAll = (): NamespaceBase<T>[] => {
+	getAll = (): NamespaceBase<T, U>[] => {
 		return this.context.storage.list()
 	}
 }

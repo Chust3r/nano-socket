@@ -1,7 +1,9 @@
-import type { CustomEvents, Namespace, ServerEvents, Socket } from '~types'
+import type { ExtendedEvents, Namespace, ServerEvents, Socket } from '~types'
 import { EventEmitter } from './event-emitter'
 
-export class NamespaceBase<T extends CustomEvents> implements Namespace<T> {
+export class NamespaceBase<T extends ExtendedEvents, U extends ExtendedEvents>
+	implements Namespace<T, U>
+{
 	private context = {
 		events: new EventEmitter(),
 	}
@@ -15,5 +17,9 @@ export class NamespaceBase<T extends CustomEvents> implements Namespace<T> {
 		listener: ServerEvents<T>[K],
 	) {
 		this.context.events.on(event, listener)
+	}
+
+	public emit<K extends keyof U>(event: K, ...params: Parameters<U[K]>) {
+		// TODO: emit event
 	}
 }

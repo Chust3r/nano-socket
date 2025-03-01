@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 import { EventEmitter } from '~core/event-emitter'
 import type {
-	CustomEvents,
+	ExtendedEvents,
 	IncomingData,
 	Parser,
 	Socket,
@@ -17,7 +17,7 @@ interface SocketClientContext {
 	parser: Parser
 }
 
-export class SocketClient<T extends CustomEvents> implements Socket<T> {
+export class SocketClient<T extends ExtendedEvents> implements Socket<T> {
 	private context: SocketClientContext
 
 	constructor(adapter: SocketAdapter) {

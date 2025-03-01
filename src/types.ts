@@ -6,7 +6,7 @@ export type IncomingData =
 	| Buffer<ArrayBufferLike>[]
 	| string
 
-export type CustomEvents = Record<string, (...params: any[]) => void>
+export type ExtendedEvents = Record<string, (...params: any[]) => void>
 
 export type NextFunction = () => void | Promise<void>
 
@@ -31,17 +31,24 @@ export interface SocketAdapter {
 	) => void
 }
 
-export interface ServerEvents<T extends CustomEvents = {}> {
-	connection: (socket: Socket<T>) => void | Promise<void>
+export interface ServerEvents<ClientEvents extends ExtendedEvents = {}> {
+	connection: (socket: Socket<ClientEvents>) => void | Promise<void>
 	disconnection: () => void | Promise<void>
 	error: (err: Error) => void | Promise<void>
 }
 
-export interface Server<T extends CustomEvents = {}> {
-	on: (
-		event: keyof ServerEvents<T>,
-		listener: ServerEvents<T>[keyof ServerEvents<T>],
-	) => void | Promise<void>
+export interface Server<
+	ClientEvents extends ExtendedEvents = {},
+	SEvents extends ExtendedEvents = {},
+> {
+	on<K extends keyof ServerEvents<ClientEvents>>(
+		event: K,
+		listener: ServerEvents[K],
+	): void | Promise<void>
+	emit<K extends keyof SEvents>(
+		event: K,
+		...params: Parameters<SEvents[K]>
+	): void
 }
 
 export interface Storage<T> {
@@ -66,22 +73,29 @@ export interface SocketEvents {
 	disconnect: (code: number, reason: string) => void
 }
 
-export interface SocketEvents {
-	disconnect: (code: number, reason: string) => void
-}
-
-export interface Socket<T extends CustomEvents = {}> {
+export interface Socket<ClientEvents extends ExtendedEvents = {}> {
 	id: string
-	on<K extends keyof T>(event: K, listener: T[K]): void
-	emit<K extends keyof T>(event: K, ...params: Parameters<T[K]>): void
+	on<K extends keyof ClientEvents>(event: K, listener: ClientEvents[K]): void
+	emit<K extends keyof ClientEvents>(
+		event: K,
+		...params: Parameters<ClientEvents[K]>
+	): void
 	on<K extends keyof SocketEvents>(event: K, listener: SocketEvents[K]): void
 }
 
-export interface Namespace<T extends CustomEvents = {}> {
-	on: (
-		event: keyof ServerEvents<T>,
-		listener: ServerEvents<T>[keyof ServerEvents<T>],
-	) => void | Promise<void>
+export interface Namespace<
+	ClientsEvents extends ExtendedEvents = {},
+	NamespaceEvents extends ExtendedEvents = {},
+> {
+	on<K extends keyof ServerEvents<ClientsEvents>>(
+		event: K,
+		listener: ServerEvents<ClientsEvents>[K],
+	): void | Promise<void>
+
+	emit<K extends keyof NamespaceEvents>(
+		event: K,
+		...params: Parameters<NamespaceEvents[K]>
+	): void
 }
 
 export interface Context {

@@ -1,8 +1,8 @@
 import type { SocketClient } from '~core/socket-client'
 import { StorageBase } from '~core/storage-base'
-import type { CustomEvents } from '~types'
+import type { ExtendedEvents } from '~types'
 
-export class SocketsManager<T extends CustomEvents> {
+export class SocketsManager<T extends ExtendedEvents> {
 	private storage = new StorageBase<SocketClient<T>>()
 
 	add(socket: SocketClient<T>): void {
