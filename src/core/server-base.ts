@@ -4,6 +4,7 @@ import type {
 	Context,
 	ExtendedEvents,
 	Namespace,
+	OutgoingData,
 	Server,
 	ServerEvents,
 	SocketAdapter,
@@ -61,7 +62,11 @@ export class ServerBase<T extends ExtendedEvents, U extends ExtendedEvents>
 	}
 
 	emit<K extends keyof U>(event: K, ...params: Parameters<U[K]>): void {
-		// TODO: emit event
+		this.main.emit(event, ...params)
+	}
+
+	send(message: OutgoingData): void {
+		this.main.send(message)
 	}
 
 	namespace<

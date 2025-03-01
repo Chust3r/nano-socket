@@ -3,6 +3,7 @@ import { EventEmitter } from '~core/event-emitter'
 import type {
 	ExtendedEvents,
 	IncomingData,
+	OutgoingData,
 	Parser,
 	Socket,
 	SocketAdapter,
@@ -51,5 +52,13 @@ export class SocketClient<T extends ExtendedEvents> implements Socket<T> {
 		this.context.events.on(event as string, listener)
 	}
 
-	emit<K extends keyof T>(event: K, ...params: Parameters<T[K]>) {}
+	emit<K extends keyof T>(event: K, ...params: Parameters<T[K]>) {
+		this.context.adapter.send(
+			this.context.parser.serialize(event as string, ...params),
+		)
+	}
+
+	send(message: OutgoingData): void {
+		this.context.adapter.send(message)
+	}
 }

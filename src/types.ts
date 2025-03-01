@@ -1,4 +1,4 @@
-export type OutgoingData = any
+export type OutgoingData = string
 
 export type IncomingData =
 	| Buffer<ArrayBufferLike>
@@ -49,6 +49,7 @@ export interface Server<
 		event: K,
 		...params: Parameters<SEvents[K]>
 	): void
+	send(message: OutgoingData): void
 }
 
 export interface Storage<T> {
@@ -81,6 +82,7 @@ export interface Socket<ClientEvents extends ExtendedEvents = {}> {
 		...params: Parameters<ClientEvents[K]>
 	): void
 	on<K extends keyof SocketEvents>(event: K, listener: SocketEvents[K]): void
+	send(message: OutgoingData): void
 }
 
 export interface Namespace<
@@ -96,6 +98,8 @@ export interface Namespace<
 		event: K,
 		...params: Parameters<NamespaceEvents[K]>
 	): void
+
+	send(message: OutgoingData): void
 }
 
 export interface Context {

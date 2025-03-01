@@ -1,11 +1,10 @@
-import type { SocketClient } from '~core/socket-client'
 import { StorageBase } from '~core/storage-base'
-import type { ExtendedEvents } from '~types'
+import type { ExtendedEvents, Socket } from '~types'
 
 export class SocketsManager<T extends ExtendedEvents> {
-	private storage = new StorageBase<SocketClient<T>>()
+	private storage = new StorageBase<Socket<T>>()
 
-	add(socket: SocketClient<T>): void {
+	add(socket: Socket<T>): void {
 		this.storage.set(socket.id, socket)
 	}
 
@@ -13,7 +12,7 @@ export class SocketsManager<T extends ExtendedEvents> {
 		this.storage.delete(id)
 	}
 
-	get(id: string): SocketClient<T> | undefined {
+	get(id: string): Socket<T> | undefined {
 		return this.storage.get(id)
 	}
 
@@ -21,7 +20,7 @@ export class SocketsManager<T extends ExtendedEvents> {
 		return this.storage.has(id)
 	}
 
-	getAll(): SocketClient<T>[] {
+	getAll(): Socket<T>[] {
 		return [...this.storage.list()]
 	}
 
@@ -29,11 +28,11 @@ export class SocketsManager<T extends ExtendedEvents> {
 		return this.storage.size()
 	}
 
-	exclude(...excludedIds: string[]): SocketClient<T>[] {
+	exclude(...excludedIds: string[]): Socket<T>[] {
 		return this.getAll().filter((client) => !excludedIds.includes(client.id))
 	}
 
-	map(callback: (value: SocketClient<T>, key: string) => void): void {
+	map(callback: (value: Socket<T>, key: string) => void): void {
 		this.storage.map(callback)
 	}
 }
